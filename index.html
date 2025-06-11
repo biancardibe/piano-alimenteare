@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,47 +11,65 @@
         body {
             font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
-            padding-top: 60px; /* Spazio per l'header fisso */
+            padding-top: 60px;
+            /* Spazio per l'header fisso */
         }
+
         #sticky-header {
             transition: opacity 0.3s ease;
         }
+
         .meal-card {
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
+
         .nav-button.active {
-            background-color: #1D4ED8; /* bg-blue-700 */
+            background-color: #1D4ED8;
+            /* bg-blue-700 */
             color: white;
             font-weight: 600;
         }
+
         .day-nav-button.active {
-            background-color: #3B82F6; /* bg-blue-500 */
+            background-color: #3B82F6;
+            /* bg-blue-500 */
             color: white;
-            border-color: #3B82F6; /* border-blue-500 */
+            border-color: #3B82F6;
+            /* border-blue-500 */
         }
+
         .view-button {
             padding: 0.75rem 1.5rem;
             font-weight: 600;
-            color: #4B5563; /* text-gray-600 */
+            color: #4B5563;
+            /* text-gray-600 */
             border-bottom: 3px solid transparent;
             transition: color 0.2s, border-color 0.2s;
         }
+
         .view-button:hover {
-            color: #1D4ED8; /* text-blue-700 */
+            color: #1D4ED8;
+            /* text-blue-700 */
         }
+
         .view-button.active {
-            color: #1D4ED8; /* text-blue-700 */
-            border-bottom-color: #1D4ED8; /* border-blue-700 */
+            color: #1D4ED8;
+            /* text-blue-700 */
+            border-bottom-color: #1D4ED8;
+            /* border-blue-700 */
         }
-        .shopping-item input[type="checkbox"]:checked + label {
+
+        .shopping-item input[type="checkbox"]:checked+label {
             text-decoration: line-through;
             color: #9CA3AF;
         }
+
         .shopping-item label span {
             transition: color 0.2s;
         }
-        .shopping-item input[type="checkbox"]:checked + label span {
-             color: #9CA3AF;
+
+        .shopping-item input[type="checkbox"]:checked+label span {
+            color: #9CA3AF;
         }
 
         /* Animazioni di Swipe */
@@ -58,34 +77,39 @@
             transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
             will-change: transform, opacity;
         }
+
         .slide-out-left {
             transform: translateX(-100%);
             opacity: 0;
         }
+
         .slide-out-right {
             transform: translateX(100%);
             opacity: 0;
         }
+
         .slide-in {
             transform: translateX(0);
             opacity: 1;
         }
     </style>
 </head>
+
 <body class="bg-gray-50 text-gray-800">
 
     <!-- Header Fisso -->
-    <div id="sticky-header" class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm shadow-md h-[60px] flex items-center justify-center px-4 z-20 hidden">
+    <div id="sticky-header"
+        class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm shadow-md h-[60px] flex items-center justify-center px-4 z-20 hidden">
         <h2 class="text-lg font-bold text-gray-800">
             <span id="sticky-week"></span> - <span id="sticky-day"></span>
         </h2>
     </div>
 
     <div id="app" class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        
+
         <header class="text-center mb-6">
             <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Il Tuo Piano Alimentare</h1>
-            <p class="mt-2 text-lg text-gray-600">4 settimane di alimentazione bilanciata - Versione aggiornata</p>
+            <p class="mt-2 text-lg text-gray-600">4 settimane di alimentazione bilanciata</p>
         </header>
 
         <!-- Main View Navigation -->
@@ -98,24 +122,25 @@
         <nav id="week-nav" class="flex justify-center bg-white p-2 rounded-xl shadow-md mb-6 top-[70px] z-10">
             <!-- I pulsanti delle settimane verranno inseriti qui dal JavaScript -->
         </nav>
-        
+
         <!-- Container for Meal Plan View -->
         <div id="plan-view-container" class="overflow-x-hidden">
             <nav id="day-nav" class="flex flex-wrap justify-center gap-2 mb-8">
-                 <!-- I pulsanti dei giorni verranno inseriti qui dal JavaScript -->
+                <!-- I pulsanti dei giorni verranno inseriti qui dal JavaScript -->
             </nav>
             <main id="meal-plan-container">
                 <!-- Il contenuto del piano alimentare verrà caricato qui -->
             </main>
         </div>
-        
+
         <!-- Container for Shopping List View -->
         <div id="list-view-container" class="hidden">
             <!-- La lista della spesa verrà caricata qui -->
         </div>
 
         <footer class="text-center mt-12 text-sm text-gray-500">
-            <p>Questo piano alimentare è stato generato sulla base delle tue indicazioni. Consulta sempre un professionista.</p>
+            <p>Questo piano alimentare è stato generato sulla base delle tue indicazioni. Consulta sempre un
+                professionista.</p>
         </footer>
 
     </div>
@@ -123,7 +148,7 @@
     <script>
         // --- DATABASE DEL PIANO ALIMENTARE ---
         const mealPlan = {
-            settimana1: {
+            week1: {
                 lun: {
                     colazione: { nome: "Yogurt greco intero e Muesli con Banana", grammatura: "125g + 30g + 150g", descrizione: "Yogurt greco con muesli e una banana a fette." },
                     merenda: { nome: "Kiwi e Mandorle", grammatura: "150g + 30g", descrizione: "Due kiwi freschi accompagnati da mandorle secche." },
@@ -174,7 +199,7 @@
                     cena: { nome: "Trota al forno, Fagiolini e Kiwi", grammatura: "150g + 100g + 150g", descrizione: "Trota al forno con fagiolini al vapore. Concludere con due kiwi." }
                 }
             },
-            settimana2: {
+            week2: {
                 lun: {
                     colazione: { nome: "Yogurt greco e Muesli con Kiwi", grammatura: "125g + 30g + 150g", descrizione: "Yogurt greco con muesli e due kiwi." },
                     merenda: { nome: "Banana e Nocciole", grammatura: "150g + 30g", descrizione: "Una banana fresca accompagnata da nocciole secche." },
@@ -189,14 +214,14 @@
                     pranzo: { nome: "Riso basmati con Lenticchie e Zucca", grammatura: "80g + 60g + 200g", descrizione: "Riso basmati con lenticchie e cubetti di zucca gialla. Condire con 20g olio EVO." },
                     cena: { nome: "Fegato di bovino, Agretti e Kiwi", grammatura: "150g + 100g + 150g", descrizione: "Fegato saltato in padella con contorno di agretti. Concludere con due kiwi." }
                 },
-                 mer: {
+                mer: {
                     colazione: { nome: "Ricotta di pecora, Muesli e Banana", grammatura: "80g + 30g + 150g", descrizione: "Ricotta di pecora con muesli e una banana." },
                     merenda: { nome: "Kiwi e Mandorle", grammatura: "150g + 30g", descrizione: "Due kiwi e mandorle secche." },
                     spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
                     pranzo: { nome: "Penne Senatore Cappelli con Tonno e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Penne con tonno al naturale e zucchine. Condire con 20g olio EVO." },
                     cena: { nome: "Pesce spada, Insalata di pomodori, Banana", grammatura: "150g + 200g + 150g", descrizione: "Pesce spada alla griglia con insalata di pomodori. Concludere con una banana." }
                 },
-                 gio: {
+                gio: {
                     colazione: { nome: "Pane secco, burro, marmellata e Kiwi", grammatura: "90g + 150g", descrizione: "Pane secco con burro di centrifuga, marmellata e due kiwi." },
                     merenda: { nome: "Mirtilli e Semi di zucca", grammatura: "125g + 20g", descrizione: "Una coppetta di mirtilli e semi di zucca." },
                     spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
@@ -225,7 +250,7 @@
                     cena: { nome: "Minestra di verdure e legumi, Mirtilli", grammatura: "Piatto abbondante + 125g", descrizione: "Passato di verdure (zucca, carote, zucchine) con lenticchie (80g). Concludere con mirtilli." }
                 }
             },
-            settimana3: {
+            week3: {
                 lun: {
                     colazione: { nome: "Yogurt greco, Muesli e Kiwi", grammatura: "125g + 30g + 150g", descrizione: "Yogurt greco con muesli e kiwi a fette." },
                     merenda: { nome: "Banana e Anacardi", grammatura: "150g + 30g", descrizione: "Fette di banana e anacardi." },
@@ -247,7 +272,7 @@
                     pranzo: { nome: "Farro con Sgombro e Pomodorini", grammatura: "80g + 60g + 200g", descrizione: "Insalata di farro con sgombro e pomodorini." },
                     cena: { nome: "Pesce spada, Zucchine e Banana", grammatura: "150g + 200g + 150g", descrizione: "Trancio di pesce spada con zucchine grigliate. Concludere con una banana." }
                 },
-                 gio: {
+                gio: {
                     colazione: { nome: "Latte di pecora, Muesli e Banana", grammatura: "200g + 30g + 150g", descrizione: "Tazza di latte di pecora con muesli e banana." },
                     merenda: { nome: "Kiwi e Nocciole", grammatura: "150g + 30g", descrizione: "Due kiwi e nocciole." },
                     spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
@@ -276,8 +301,8 @@
                     cena: { nome: "Orata, Piselli e Banana", grammatura: "150g + 240g + 150g", descrizione: "Orata al forno con piselli freschi in umido. Concludere con una banana." }
                 }
             },
-            settimana4: {
-                 lun: {
+            week4: {
+                lun: {
                     colazione: { nome: "Yogurt greco, Muesli e Banana", grammatura: "125g + 30g + 150g", descrizione: "Yogurt greco con muesli e banana." },
                     merenda: { nome: "Kiwi e Noci", grammatura: "150g + 30g", descrizione: "Due kiwi e noci." },
                     spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
@@ -298,7 +323,7 @@
                     pranzo: { nome: "Penne Senatore Cappelli con Tonno e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Pasta con tonno al naturale e zucchine." },
                     cena: { nome: "Tacchino, Funghi e Mirtilli", grammatura: "150g + 150g + 125g", descrizione: "Fesa di tacchino con funghi trifolati. Concludere con mirtilli." }
                 },
-                 gio: {
+                gio: {
                     colazione: { nome: "Pane secco, burro, marmellata e Banana", grammatura: "90g + 150g", descrizione: "Pane secco con burro, marmellata e banana." },
                     merenda: { nome: "Mirtilli e Semi di zucca", grammatura: "125g + 20g", descrizione: "Mirtilli e semi di zucca." },
                     spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
@@ -328,44 +353,44 @@
                 }
             }
         };
-        
+
         // --- SHOPPING LIST WITH CALCULATED QUANTITIES ---
         const shoppingLists = {
-            settimana1: {
-                "Frutta": [ { name: "Banana", qty: 900, unit: "g" }, { name: "Kiwi", qty: 750, unit: "g" }, { name: "Mirtilli", qty: 500, unit: "g" } ],
-                "Verdura": [ { name: "Zucchine", qty: 600, unit: "g" }, { name: "Bieta", qty: 100, unit: "g" }, { name: "Carote", qty: 100, unit: "g" }, { name: "Spinaci", qty: 100, unit: "g" }, { name: "Pomodori", qty: 200, unit: "g" }, { name: "Broccoletti", qty: 200, unit: "g" }, { name: "Zucca gialla", qty: 200, unit: "g" }, { name: "Asparagi", qty: 100, unit: "g" }, { name: "Peperoni", qty: 150, unit: "g" }, { name: "Funghi prataioli", qty: 150, unit: "g" }, { name: "Lattuga", qty: 100, unit: "g" }, { name: "Fagiolini", qty: 100, unit: "g" } ],
-                "Carboidrati": [ { name: "Pasta Senatore Cappelli", qty: 160, unit: "g" }, { name: "Pane secco/integrale", qty: 180, unit: "g" }, { name: "Riso basmati", qty: 80, unit: "g" }, { name: "Farro", qty: 80, unit: "g" }, { name: "Grano saraceno", qty: 160, unit: "g" }, { name: "Riso nero Venere", qty: 80, unit: "g" } ],
-                "Proteine": [ { name: "Ceci secchi", qty: 60, unit: "g" }, { name: "Petto di tacchino", qty: 150, unit: "g" }, { name: "Lenticchie secche", qty: 60, unit: "g" }, { name: "Sgombro", qty: 210, unit: "g" }, { name: "Piselli freschi", qty: 60, unit: "g" }, { name: "Salmone fresco", qty: 150, unit: "g" }, { name: "Fagioli secchi", qty: 60, unit: "g" }, { name: "Vitellone", qty: 150, unit: "g" }, { name: "Orata fresca", qty: 150, unit: "g" }, { name: "Bistecca di maiale", qty: 150, unit: "g" }, { name: "Vongole", qty: 60, unit: "g" }, { name: "Trota", qty: 150, unit: "g" } ],
-                "Latticini e Alternative": [ { name: "Yogurt greco intero", qty: 125, unit: "g" }, { name: "Ricotta di vacca", qty: 80, unit: "g" }, { name: "Latte di capra", qty: 200, unit: "ml" }, { name: "Ricotta di pecora", qty: 80, unit: "g" }, { name: "Latte di pecora", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 85, unit: "g" } ],
-                "Cereali e Altro": [ { name: "Muesli", qty: 150, unit: "g" }, { name: "Burro di centrifuga", qty: 1, unit: "conf" }, { name: "Marmellata biologica", qty: 1, unit: "conf" } ],
-                "Frutta Secca e Semi": [ { name: "Mandorle", qty: 60, unit: "g" }, { name: "Noci", qty: 60, unit: "g" }, { name: "Anacardi", qty: 30, unit: "g" }, { name: "Nocciole", qty: 30, unit: "g" }, { name: "Semi di girasole", qty: 20, unit: "g" }, { name: "Semi di zucca", qty: 140, unit: "g" } ]
+            week1: {
+                "Frutta": [{ name: "Banana", qty: 900, unit: "g" }, { name: "Kiwi", qty: 750, unit: "g" }, { name: "Mirtilli", qty: 500, unit: "g" }],
+                "Verdura": [{ name: "Zucchine", qty: 600, unit: "g" }, { name: "Bieta", qty: 100, unit: "g" }, { name: "Carote", qty: 100, unit: "g" }, { name: "Spinaci", qty: 100, unit: "g" }, { name: "Pomodori", qty: 200, unit: "g" }, { name: "Broccoletti", qty: 200, unit: "g" }, { name: "Zucca gialla", qty: 200, unit: "g" }, { name: "Asparagi", qty: 100, unit: "g" }, { name: "Peperoni", qty: 150, unit: "g" }, { name: "Funghi prataioli", qty: 150, unit: "g" }, { name: "Lattuga", qty: 100, unit: "g" }, { name: "Fagiolini", qty: 100, unit: "g" }],
+                "Carboidrati": [{ name: "Pasta Senatore Cappelli", qty: 160, unit: "g" }, { name: "Pane secco/integrale", qty: 180, unit: "g" }, { name: "Riso basmati", qty: 80, unit: "g" }, { name: "Farro", qty: 80, unit: "g" }, { name: "Grano saraceno", qty: 160, unit: "g" }, { name: "Riso nero Venere", qty: 80, unit: "g" }],
+                "Proteine": [{ name: "Ceci secchi", qty: 60, unit: "g" }, { name: "Petto di tacchino", qty: 150, unit: "g" }, { name: "Lenticchie secche", qty: 60, unit: "g" }, { name: "Sgombro", qty: 210, unit: "g" }, { name: "Piselli freschi", qty: 60, unit: "g" }, { name: "Salmone fresco", qty: 150, unit: "g" }, { name: "Fagioli secchi", qty: 60, unit: "g" }, { name: "Vitellone", qty: 150, unit: "g" }, { name: "Orata fresca", qty: 150, unit: "g" }, { name: "Bistecca di maiale", qty: 150, unit: "g" }, { name: "Vongole", qty: 60, unit: "g" }, { name: "Trota", qty: 150, unit: "g" }],
+                "Latticini e Alternative": [{ name: "Yogurt greco intero", qty: 125, unit: "g" }, { name: "Ricotta di vacca", qty: 80, unit: "g" }, { name: "Latte di capra", qty: 200, unit: "ml" }, { name: "Ricotta di pecora", qty: 80, unit: "g" }, { name: "Latte di pecora", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 85, unit: "g" }],
+                "Cereali e Altro": [{ name: "Muesli", qty: 150, unit: "g" }, { name: "Burro di centrifuga", qty: 1, unit: "conf" }, { name: "Marmellata biologica", qty: 1, unit: "conf" }],
+                "Frutta Secca e Semi": [{ name: "Mandorle", qty: 60, unit: "g" }, { name: "Noci", qty: 60, unit: "g" }, { name: "Anacardi", qty: 30, unit: "g" }, { name: "Nocciole", qty: 30, unit: "g" }, { name: "Semi di girasole", qty: 20, unit: "g" }, { name: "Semi di zucca", qty: 140, unit: "g" }]
             },
-            settimana2: {
-                 "Frutta": [ { name: "Kiwi", qty: 900, unit: "g" }, { name: "Banana", qty: 900, unit: "g" }, { name: "Mirtilli", qty: 750, unit: "g" } ],
-                "Verdura": [ { name: "Zucchine", qty: 600, unit: "g" }, { name: "Patate", qty: 200, unit: "g" }, { name: "Zucca gialla", qty: 200, unit: "g" }, { name: "Agretti", qty: 100, unit: "g" }, { name: "Pomodori", qty: 200, unit: "g" }, { name: "Peperoni", qty: 150, unit: "g" }, { name: "Asparagi", qty: 100, unit: "g" }, { name: "Carote", qty: 100, unit: "g" }, { name: "Funghi", qty: 150, unit: "g" }, { name: "Fagiolini", qty: 100, unit: "g" }, { name: "Prezzemolo", qty: 1, unit: "mazzetto" } ],
-                "Carboidrati": [ { name: "Grano saraceno", qty: 80, unit: "g" }, { name: "Pane secco/integrale", qty: 180, unit: "g" }, { name: "Riso basmati", qty: 160, unit: "g" }, { name: "Penne Senatore Cappelli", qty: 80, unit: "g" }, { name: "Farro", qty: 80, unit: "g" }, { name: "Pasta Senatore Cappelli", qty: 80, unit: "g" } ],
-                "Proteine": [ { name: "Ceci secchi", qty: 60, unit: "g" }, { name: "Polpo", qty: 200, unit: "g" }, { name: "Lenticchie secche", qty: 140, unit: "g" }, { name: "Fegato di bovino", qty: 150, unit: "g" }, { name: "Tonno al naturale", qty: 60, unit: "g" }, { name: "Pesce spada", qty: 150, unit: "g" }, { name: "Piselli freschi", qty: 60, unit: "g" }, { name: "Sgombro", qty: 150, unit: "g" }, { name: "Cozze", qty: 60, unit: "g" }, { name: "Tonno fresco", qty: 150, unit: "g" }, { name: "Fagioli secchi", qty: 60, unit: "g" }, { name: "Vitellone", qty: 150, unit: "g" } ],
-                "Latticini e Alternative": [ { name: "Yogurt greco", qty: 125, unit: "g" }, { name: "Ricotta di vacca", qty: 160, unit: "g" }, { name: "Ricotta di pecora", qty: 80, unit: "g" }, { name: "Latte di vacca", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 85, unit: "g" } ],
-                "Cereali e Altro": [ { name: "Muesli", qty: 90, unit: "g" }, { name: "Burro di centrifuga", qty: 1, unit: "conf" }, { name: "Marmellata biologica", qty: 1, unit: "conf" } ],
-                "Frutta Secca e Semi": [ { name: "Nocciole", qty: 30, unit: "g" }, { name: "Mandorle", qty: 60, unit: "g" }, { name: "Semi di zucca", qty: 160, unit: "g" }, { name: "Noci", qty: 30, unit: "g" } ]
+            week2: {
+                "Frutta": [{ name: "Kiwi", qty: 900, unit: "g" }, { name: "Banana", qty: 900, unit: "g" }, { name: "Mirtilli", qty: 750, unit: "g" }],
+                "Verdura": [{ name: "Zucchine", qty: 600, unit: "g" }, { name: "Patate", qty: 200, unit: "g" }, { name: "Zucca gialla", qty: 200, unit: "g" }, { name: "Agretti", qty: 100, unit: "g" }, { name: "Pomodori", qty: 200, unit: "g" }, { name: "Peperoni", qty: 150, unit: "g" }, { name: "Asparagi", qty: 100, unit: "g" }, { name: "Carote", qty: 100, unit: "g" }, { name: "Funghi", qty: 150, unit: "g" }, { name: "Fagiolini", qty: 100, unit: "g" }, { name: "Prezzemolo", qty: 1, unit: "mazzetto" }],
+                "Carboidrati": [{ name: "Grano saraceno", qty: 80, unit: "g" }, { name: "Pane secco/integrale", qty: 180, unit: "g" }, { name: "Riso basmati", qty: 160, unit: "g" }, { name: "Penne Senatore Cappelli", qty: 80, unit: "g" }, { name: "Farro", qty: 80, unit: "g" }, { name: "Pasta Senatore Cappelli", qty: 80, unit: "g" }],
+                "Proteine": [{ name: "Ceci secchi", qty: 60, unit: "g" }, { name: "Polpo", qty: 200, unit: "g" }, { name: "Lenticchie secche", qty: 140, unit: "g" }, { name: "Fegato di bovino", qty: 150, unit: "g" }, { name: "Tonno al naturale", qty: 60, unit: "g" }, { name: "Pesce spada", qty: 150, unit: "g" }, { name: "Piselli freschi", qty: 60, unit: "g" }, { name: "Sgombro", qty: 150, unit: "g" }, { name: "Cozze", qty: 60, unit: "g" }, { name: "Tonno fresco", qty: 150, unit: "g" }, { name: "Fagioli secchi", qty: 60, unit: "g" }, { name: "Vitellone", qty: 150, unit: "g" }],
+                "Latticini e Alternative": [{ name: "Yogurt greco", qty: 125, unit: "g" }, { name: "Ricotta di vacca", qty: 160, unit: "g" }, { name: "Ricotta di pecora", qty: 80, unit: "g" }, { name: "Latte di vacca", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 85, unit: "g" }],
+                "Cereali e Altro": [{ name: "Muesli", qty: 90, unit: "g" }, { name: "Burro di centrifuga", qty: 1, unit: "conf" }, { name: "Marmellata biologica", qty: 1, unit: "conf" }],
+                "Frutta Secca e Semi": [{ name: "Nocciole", qty: 30, unit: "g" }, { name: "Mandorle", qty: 60, unit: "g" }, { name: "Semi di zucca", qty: 160, unit: "g" }, { name: "Noci", qty: 30, unit: "g" }]
             },
-            settimana3: {
-                "Frutta": [ { name: "Kiwi", qty: 750, unit: "g" }, { name: "Banana", qty: 1050, unit: "g" }, { name: "Mirtilli", qty: 375, unit: "g" } ],
-                "Verdura": [ { name: "Broccoletti", qty: 60, unit: "g" }, { name: "Carote", qty: 100, unit: "g" }, { name: "Peperoni", qty: 150, unit: "g" }, { name: "Fagiolini", qty: 100, unit: "g" }, { name: "Pomodorini", qty: 200, unit: "g" }, { name: "Zucchine", qty: 400, unit: "g" }, { name: "Spinaci", qty: 100, unit: "g" }, { name: "Zucca gialla", qty: 200, unit: "g" }, { name: "Asparagi", qty: 100, unit: "g" }, { name: "Piselli freschi", qty: 240, unit: "g" } ],
-                "Carboidrati": [ { name: "Pasta Senatore Cappelli", qty: 80, unit: "g" }, { name: "Pane secco/integrale", qty: 180, unit: "g" }, { name: "Riso nero Venere", qty: 80, unit: "g" }, { name: "Farro", qty: 160, unit: "g" }, { name: "Riso basmati", qty: 80, unit: "g" }, { name: "Grano saraceno", qty: 80, unit: "g" } ],
-                "Proteine": [ { name: "Ceci secchi", qty: 60, unit: "g" }, { name: "Petto di pollo", qty: 150, unit: "g" }, { name: "Lenticchie secche", qty: 160, unit: "g" }, { name: "Salmone fresco", qty: 150, unit: "g" }, { name: "Sgombro", qty: 60, unit: "g" }, { name: "Pesce spada", qty: 150, unit: "g" }, { name: "Fesa di tacchino", qty: 150, unit: "g" }, { name: "Vongole", qty: 60, unit: "g" }, { name: "Sogliola", qty: 150, unit: "g" }, { name: "Triglie", qty: 150, unit: "g" }, { name: "Orata", qty: 150, unit: "g" } ],
-                "Latticini e Alternative": [ { name: "Yogurt greco", qty: 125, unit: "g" }, { name: "Ricotta di vacca", qty: 160, unit: "g" }, { name: "Latte di pecora", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 85, unit: "g" }, { name: "Latte di capra", qty: 200, unit: "ml" } ],
-                "Cereali e Altro": [ { name: "Muesli", qty: 120, unit: "g" }, { name: "Burro di centrifuga", qty: 1, unit: "conf" }, { name: "Marmellata biologica", qty: 1, unit: "conf" } ],
-                "Frutta Secca e Semi": [ { name: "Anacardi", qty: 30, unit: "g" }, { name: "Noci", qty: 30, unit: "g" }, { name: "Mandorle", qty: 30, unit: "g" }, { name: "Nocciole", qty: 30, unit: "g" }, { name: "Semi di girasole", qty: 20, unit: "g" }, { name: "Arachidi tostate", qty: 30, unit: "g" }, { name: "Semi di zucca", qty: 140, unit: "g" } ]
+            week3: {
+                "Frutta": [{ name: "Kiwi", qty: 750, unit: "g" }, { name: "Banana", qty: 1050, unit: "g" }, { name: "Mirtilli", qty: 375, unit: "g" }],
+                "Verdura": [{ name: "Broccoletti", qty: 60, unit: "g" }, { name: "Carote", qty: 100, unit: "g" }, { name: "Peperoni", qty: 150, unit: "g" }, { name: "Fagiolini", qty: 100, unit: "g" }, { name: "Pomodorini", qty: 200, unit: "g" }, { name: "Zucchine", qty: 400, unit: "g" }, { name: "Spinaci", qty: 100, unit: "g" }, { name: "Zucca gialla", qty: 200, unit: "g" }, { name: "Asparagi", qty: 100, unit: "g" }, { name: "Piselli freschi", qty: 240, unit: "g" }],
+                "Carboidrati": [{ name: "Pasta Senatore Cappelli", qty: 80, unit: "g" }, { name: "Pane secco/integrale", qty: 180, unit: "g" }, { name: "Riso nero Venere", qty: 80, unit: "g" }, { name: "Farro", qty: 160, unit: "g" }, { name: "Riso basmati", qty: 80, unit: "g" }, { name: "Grano saraceno", qty: 80, unit: "g" }],
+                "Proteine": [{ name: "Ceci secchi", qty: 60, unit: "g" }, { name: "Petto di pollo", qty: 150, unit: "g" }, { name: "Lenticchie secche", qty: 160, unit: "g" }, { name: "Salmone fresco", qty: 150, unit: "g" }, { name: "Sgombro", qty: 60, unit: "g" }, { name: "Pesce spada", qty: 150, unit: "g" }, { name: "Fesa di tacchino", qty: 150, unit: "g" }, { name: "Vongole", qty: 60, unit: "g" }, { name: "Sogliola", qty: 150, unit: "g" }, { name: "Triglie", qty: 150, unit: "g" }, { name: "Orata", qty: 150, unit: "g" }],
+                "Latticini e Alternative": [{ name: "Yogurt greco", qty: 125, unit: "g" }, { name: "Ricotta di vacca", qty: 160, unit: "g" }, { name: "Latte di pecora", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 85, unit: "g" }, { name: "Latte di capra", qty: 200, unit: "ml" }],
+                "Cereali e Altro": [{ name: "Muesli", qty: 120, unit: "g" }, { name: "Burro di centrifuga", qty: 1, unit: "conf" }, { name: "Marmellata biologica", qty: 1, unit: "conf" }],
+                "Frutta Secca e Semi": [{ name: "Anacardi", qty: 30, unit: "g" }, { name: "Noci", qty: 30, unit: "g" }, { name: "Mandorle", qty: 30, unit: "g" }, { name: "Nocciole", qty: 30, unit: "g" }, { name: "Semi di girasole", qty: 20, unit: "g" }, { name: "Arachidi tostate", qty: 30, unit: "g" }, { name: "Semi di zucca", qty: 140, unit: "g" }]
             },
-            settimana4: {
-                "Frutta": [ { name: "Banana", qty: 900, unit: "g" }, { name: "Kiwi", qty: 900, unit: "g" }, { name: "Mirtilli", qty: 625, unit: "g" } ],
-                "Verdura": [ { name: "Peperoni", qty: 300, unit: "g" }, { name: "Broccoletti", qty: 200, unit: "g" }, { name: "Cipolle", qty: 100, unit: "g" }, { name: "Fagiolini", qty: 100, unit: "g" }, { name: "Funghi", qty: 150, unit: "g" }, { name: "Lattuga", qty: 100, unit: "g" }, { name: "Agretti", qty: 100, unit: "g" }, { name: "Zucchine", qty: 200, unit: "g" }, { name: "Zucca gialla", qty: 200, unit: "g" }, { name: "Pomodorini", qty: 200, unit: "g" } ],
-                "Carboidrati": [ { name: "Grano saraceno", qty: 80, unit: "g" }, { name: "Pane secco/integrale", qty: 180, unit: "g" }, { name: "Riso basmati", qty: 160, unit: "g" }, { name: "Penne Senatore Cappelli", qty: 80, unit: "g" }, { name: "Farro", qty: 80, unit: "g" }, { name: "Pasta Senatore Cappelli", qty: 80, unit: "g" } ],
-                "Proteine": [ { name: "Ceci secchi", qty: 140, unit: "g" }, { name: "Salmone fresco", qty: 300, unit: "g" }, { name: "Lenticchie secche", qty: 60, unit: "g" }, { name: "Fegato di bovino", qty: 150, unit: "g" }, { name: "Tonno al naturale", qty: 60, unit: "g" }, { name: "Fesa di tacchino", qty: 150, unit: "g" }, { name: "Sarde", qty: 150, unit: "g" }, { name: "Cozze", qty: 60, unit: "g" }, { name: "Fagioli Borlotti freschi", qty: 120, unit: "g" }, { name: "Bistecca di maiale", qty: 150, unit: "g" }, { name: "Piselli freschi", qty: 60, unit: "g" } ],
-                "Latticini e Alternative": [ { name: "Yogurt greco", qty: 125, unit: "g" }, { name: "Ricotta di pecora", qty: 240, unit: "g" }, { name: "Latte di vacca", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 85, unit: "g" } ],
-                "Cereali e Altro": [ { name: "Muesli", qty: 90, unit: "g" }, { name: "Burro di centrifuga", qty: 1, unit: "conf" }, { name: "Marmellata biologica", qty: 1, unit: "conf" } ],
-                "Frutta Secca e Semi": [ { name: "Noci", qty: 30, unit: "g" }, { name: "Nocciole", qty: 60, unit: "g" }, { name: "Mandorle", qty: 60, unit: "g" }, { name: "Semi di zucca", qty: 160, unit: "g" } ]
+            week4: {
+                "Frutta": [{ name: "Banana", qty: 900, unit: "g" }, { name: "Kiwi", qty: 900, unit: "g" }, { name: "Mirtilli", qty: 625, unit: "g" }],
+                "Verdura": [{ name: "Peperoni", qty: 300, unit: "g" }, { name: "Broccoletti", qty: 200, unit: "g" }, { name: "Cipolle", qty: 100, unit: "g" }, { name: "Fagiolini", qty: 100, unit: "g" }, { name: "Funghi", qty: 150, unit: "g" }, { name: "Lattuga", qty: 100, unit: "g" }, { name: "Agretti", qty: 100, unit: "g" }, { name: "Zucchine", qty: 200, unit: "g" }, { name: "Zucca gialla", qty: 200, unit: "g" }, { name: "Pomodorini", qty: 200, unit: "g" }],
+                "Carboidrati": [{ name: "Grano saraceno", qty: 80, unit: "g" }, { name: "Pane secco/integrale", qty: 180, unit: "g" }, { name: "Riso basmati", qty: 160, unit: "g" }, { name: "Penne Senatore Cappelli", qty: 80, unit: "g" }, { name: "Farro", qty: 80, unit: "g" }, { name: "Pasta Senatore Cappelli", qty: 80, unit: "g" }],
+                "Proteine": [{ name: "Ceci secchi", qty: 140, unit: "g" }, { name: "Salmone fresco", qty: 300, unit: "g" }, { name: "Lenticchie secche", qty: 60, unit: "g" }, { name: "Fegato di bovino", qty: 150, unit: "g" }, { name: "Tonno al naturale", qty: 60, unit: "g" }, { name: "Fesa di tacchino", qty: 150, unit: "g" }, { name: "Sarde", qty: 150, unit: "g" }, { name: "Cozze", qty: 60, unit: "g" }, { name: "Fagioli Borlotti freschi", qty: 120, unit: "g" }, { name: "Bistecca di maiale", qty: 150, unit: "g" }, { name: "Piselli freschi", qty: 60, unit: "g" }],
+                "Latticini e Alternative": [{ name: "Yogurt greco", qty: 125, unit: "g" }, { name: "Ricotta di pecora", qty: 240, unit: "g" }, { name: "Latte di vacca", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 85, unit: "g" }],
+                "Cereali e Altro": [{ name: "Muesli", qty: 90, unit: "g" }, { name: "Burro di centrifuga", qty: 1, unit: "conf" }, { name: "Marmellata biologica", qty: 1, unit: "conf" }],
+                "Frutta Secca e Semi": [{ name: "Noci", qty: 30, unit: "g" }, { name: "Nocciole", qty: 60, unit: "g" }, { name: "Mandorle", qty: 60, unit: "g" }, { name: "Semi di zucca", qty: 160, unit: "g" }]
             }
         };
 
@@ -377,21 +402,21 @@
         };
         const dayKeys = ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom'];
 
-        let activeWeek = 'settimana1';
+        let activeWeek = 'week1';
         let activeDayKey = 'lun';
-        let currentView = 'plan'; 
+        let currentView = 'plan';
 
         const weekNav = document.getElementById('week-nav');
         const dayNav = document.getElementById('day-nav');
         const mealContainer = document.getElementById('meal-plan-container');
         const shoppingListContainer = document.getElementById('list-view-container');
-        
+
         const planViewBtn = document.getElementById('plan-view-btn');
         const listViewBtn = document.getElementById('list-view-btn');
         const planViewContainer = document.getElementById('plan-view-container');
-        
+
         function createMealCard(mealKey, mealData) {
-             const bgColor = mealKey === 'spuntino_extra' ? 'bg-green-600' : 'bg-blue-600';
+            const bgColor = mealKey === 'spuntino_extra' ? 'bg-green-600' : 'bg-blue-600';
             return `<div class="meal-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row mb-6 hover:shadow-xl hover:transform hover:-translate-y-1">
                         <div class="md:w-1/3 ${bgColor} text-white p-6 flex flex-col justify-center items-center">
                             <h3 class="text-xl font-bold">${mealTypes[mealKey]}</h3>
@@ -414,24 +439,24 @@
                 return;
             }
 
-            let content = `<h2 class="text-2xl font-bold text-center mb-6 text-blue-800">${dayNames[dayKey]} - ${weekKey.replace('settimana', 'Settimana ')}</h2>`;
+            let content = `<h2 class="text-2xl font-bold text-center mb-6 text-blue-800">${dayNames[dayKey]} - ${weekKey.replace('week', 'week ')}</h2>`;
             content += Object.keys(mealTypes).map(mealKey => dayData[mealKey] ? createMealCard(mealKey, dayData[mealKey]) : '').join('');
-            
+
             // Gestione animazione
             if (direction === 'in') {
-                 mealContainer.innerHTML = content;
+                mealContainer.innerHTML = content;
             } else {
                 const animationClass = direction === 'next' ? 'slide-out-left' : 'slide-out-right';
                 mealContainer.classList.add(animationClass);
-                
+
                 mealContainer.addEventListener('transitionend', () => {
                     mealContainer.innerHTML = content;
                     mealContainer.classList.remove('slide-out-left', 'slide-out-right');
                     mealContainer.classList.add('slide-in');
                 }, { once: true });
-                 mealContainer.classList.remove('slide-in');
+                mealContainer.classList.remove('slide-in');
             }
-            
+
             updateActiveButtons();
             updateStickyHeader(weekKey, dayKey);
         }
@@ -439,13 +464,13 @@
         function displayShoppingList(weekKey) {
             const listData = shoppingLists[weekKey];
             activeWeek = weekKey;
-             if (!listData) {
+            if (!listData) {
                 shoppingListContainer.innerHTML = '<p class="text-center text-red-500">Nessun dato disponibile.</p>';
                 return;
             }
 
-            let content = `<h2 class="text-2xl font-bold text-center mb-8 text-blue-800">Lista della Spesa - ${weekKey.replace('settimana', 'Settimana ')}</h2>`;
-            
+            let content = `<h2 class="text-2xl font-bold text-center mb-8 text-blue-800">Lista della Spesa - ${weekKey.replace('week', 'week ')}</h2>`;
+
             content += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">';
 
             for (const category in listData) {
@@ -471,8 +496,8 @@
         function updateStickyHeader(weekKey, dayKey) {
             const stickyWeek = document.getElementById('sticky-week');
             const stickyDay = document.getElementById('sticky-day');
-            if(stickyWeek && stickyDay) {
-                stickyWeek.textContent = weekKey.replace('settimana', 'Settimana ');
+            if (stickyWeek && stickyDay) {
+                stickyWeek.textContent = weekKey.replace('week', 'week ');
                 stickyDay.textContent = dayNames[dayKey];
             }
         }
@@ -496,10 +521,10 @@
                 displayShoppingList(activeWeek);
             }
         }
-        
+
         function handleWeekChange(weekKey) {
             activeWeek = weekKey;
-            if(currentView === 'plan') {
+            if (currentView === 'plan') {
                 displayDayPlan(weekKey, activeDayKey);
             } else {
                 displayShoppingList(weekKey);
@@ -516,23 +541,23 @@
                 });
             }
         }
-        
+
         function setupNavigation() {
             planViewBtn.onclick = () => toggleView('plan');
             listViewBtn.onclick = () => toggleView('list');
-            
+
             Object.keys(mealPlan).forEach((weekKey, index) => {
                 const button = document.createElement('button');
-                button.textContent = `Settimana ${index + 1}`;
+                button.textContent = `week ${index + 1}`;
                 button.dataset.week = weekKey;
                 button.className = 'nav-button px-4 py-2 rounded-lg text-sm sm:text-base font-medium text-gray-700 hover:bg-blue-100 transition-colors duration-200';
                 button.onclick = () => handleWeekChange(weekKey);
                 weekNav.appendChild(button);
             });
-            
+
             dayKeys.forEach(dayKey => {
                 const button = document.createElement('button');
-                button.textContent = dayNames[dayKey].substring(0,3);
+                button.textContent = dayNames[dayKey].substring(0, 3);
                 button.dataset.day = dayKey;
                 button.className = 'day-nav-button px-3 py-2 text-sm sm:text-base border-2 border-gray-300 rounded-lg font-semibold text-gray-600 hover:bg-gray-200 transition-colors duration-200';
                 button.onclick = () => {
@@ -541,32 +566,32 @@
                 dayNav.appendChild(button);
             });
         }
-        
+
         // --- SWIPE FUNCTIONALITY ---
         let touchstartX = 0;
         let touchendX = 0;
         let isAnimating = false;
 
         function navigateDay(direction) {
-             if (isAnimating) return;
-             isAnimating = true;
+            if (isAnimating) return;
+            isAnimating = true;
 
             let currentIndex = dayKeys.indexOf(activeDayKey);
-            const nextIndex = direction === 'next' 
+            const nextIndex = direction === 'next'
                 ? (currentIndex + 1) % dayKeys.length
                 : (currentIndex - 1 + dayKeys.length) % dayKeys.length;
-            
+
             const animationClass = direction === 'next' ? 'slide-out-left' : 'slide-out-right';
-            
+
             mealContainer.classList.add(animationClass);
             mealContainer.addEventListener('transitionend', function handler() {
                 mealContainer.removeEventListener('transitionend', handler);
-                
+
                 activeDayKey = dayKeys[nextIndex];
                 displayDayPlan(activeWeek, activeDayKey, 'no-animation');
-                
+
                 mealContainer.classList.remove(animationClass);
-                
+
                 // Allow new animation
                 setTimeout(() => {
                     isAnimating = false;
@@ -576,7 +601,7 @@
         }
 
         function handleGesture() {
-            if (currentView !== 'plan') return; 
+            if (currentView !== 'plan') return;
             const swipeThreshold = 50;
             if (touchendX < touchstartX - swipeThreshold) {
                 navigateDay('next');
@@ -600,7 +625,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const todayIndex = (new Date().getDay() + 6) % 7;
             activeDayKey = dayKeys[todayIndex];
-            
+
             setupNavigation();
             toggleView('plan');
         });
