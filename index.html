@@ -19,10 +19,29 @@
             color: white;
             font-weight: 600;
         }
-         .day-nav-button.active {
+        .day-nav-button.active {
             background-color: #3B82F6; /* bg-blue-500 */
             color: white;
             border-color: #3B82F6; /* border-blue-500 */
+        }
+        .view-button {
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            color: #4B5563; /* text-gray-600 */
+            border-bottom: 3px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .view-button:hover {
+            color: #1D4ED8; /* text-blue-700 */
+        }
+        .view-button.active {
+            color: #1D4ED8; /* text-blue-700 */
+            border-bottom-color: #1D4ED8; /* border-blue-700 */
+        }
+        /* Stile per la checkbox e l'effetto barrato */
+        .shopping-item input[type="checkbox"]:checked + label {
+            text-decoration: line-through;
+            color: #9CA3AF; /* text-gray-400 */
         }
     </style>
 </head>
@@ -30,26 +49,40 @@
 
     <div id="app" class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         
-        <header class="text-center mb-8">
+        <header class="text-center mb-6">
             <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Il Tuo Piano Alimentare</h1>
             <p class="mt-2 text-lg text-gray-600">4 settimane di alimentazione bilanciata</p>
         </header>
+
+        <!-- Main View Navigation -->
+        <nav id="view-nav" class="flex justify-center border-b-2 border-gray-200 mb-6">
+            <button id="plan-view-btn" class="view-button active">Piano Alimentare</button>
+            <button id="list-view-btn" class="view-button">Lista della Spesa</button>
+        </nav>
 
         <!-- Week Navigation -->
         <nav id="week-nav" class="flex justify-center bg-white p-2 rounded-xl shadow-md mb-6 sticky top-2 z-10">
             <!-- I pulsanti delle settimane verranno inseriti qui dal JavaScript -->
         </nav>
-
-        <!-- Day of the Week Navigation -->
-        <nav id="day-nav" class="flex flex-wrap justify-center gap-2 mb-8">
-             <!-- I pulsanti dei giorni verranno inseriti qui dal JavaScript -->
-        </nav>
-
-        <!-- Meal Plan Display -->
-        <main id="meal-plan-container">
-            <!-- Il contenuto del piano alimentare verrà caricato qui -->
-        </main>
         
+        <!-- Container for Meal Plan View -->
+        <div id="plan-view-container">
+            <!-- Day of the Week Navigation -->
+            <nav id="day-nav" class="flex flex-wrap justify-center gap-2 mb-8">
+                 <!-- I pulsanti dei giorni verranno inseriti qui dal JavaScript -->
+            </nav>
+    
+            <!-- Meal Plan Display -->
+            <main id="meal-plan-container">
+                <!-- Il contenuto del piano alimentare verrà caricato qui -->
+            </main>
+        </div>
+        
+        <!-- Container for Shopping List View -->
+        <div id="list-view-container" class="hidden">
+            <!-- La lista della spesa verrà caricata qui -->
+        </div>
+
         <footer class="text-center mt-12 text-sm text-gray-500">
             <p>Questo piano alimentare è stato generato sulla base delle tue indicazioni. Consulta sempre un professionista.</p>
         </footer>
@@ -104,7 +137,6 @@
                     cena: { nome: "Uova all'occhio di bue e Fagiolini", grammatura: "120g + 100g", descrizione: "Due uova con fagiolini al vapore. Accompagnare con 60g di pane integrale. Condire con 20g di olio EVO e 5g di olio di lino." }
                 }
             },
-            // ==================== SETTIMANA 2 ====================
             settimana2: {
                  lun: {
                     colazione: { nome: "Yogurt greco intero e Muesli", grammatura: "125g + 30g", descrizione: "Yogurt greco con aggiunta di muesli." },
@@ -149,9 +181,7 @@
                     cena: { nome: "Minestra di verdure e legumi", grammatura: "Piatto abbondante", descrizione: "Passato di verdure miste (zucca, carote, zucchine) con aggiunta di lenticchie secche (80g). Servire con 60g di pane integrale." }
                 }
             },
-            // ==================== SETTIMANA 3 ====================
             settimana3: {
-                // Simile alla settimana 1 ma con variazioni
                 lun: {
                     colazione: { nome: "Yogurt di Soia e Fiocchi di Farro", grammatura: "125g + 30g", descrizione: "Yogurt di soia con fiocchi di farro." },
                     merenda: { nome: "Ananas e Anacardi", grammatura: "150g + 30g", descrizione: "Fette di ananas fresco e anacardi." },
@@ -195,9 +225,7 @@
                     cena: { nome: "Uova all'occhio di bue e Piselli", grammatura: "120g + 240g", descrizione: "Due uova con piselli freschi in umido. Servire con 60g pane integrale. Condire con 20g olio EVO." }
                 }
             },
-            // ==================== SETTIMANA 4 ====================
             settimana4: {
-                // Simile alla settimana 2 ma con variazioni
                  lun: {
                     colazione: { nome: "Yogurt greco e Cornflakes", grammatura: "125g + 30g", descrizione: "Yogurt greco con cornflakes." },
                     merenda: { nome: "Kiwi e Noci", grammatura: "150g + 30g", descrizione: "Due kiwi e noci." },
@@ -243,41 +271,82 @@
             }
         };
 
-        const mealTypes = {
-            colazione: "Colazione",
-            merenda: "Spuntino",
-            pranzo: "Pranzo",
-            cena: "Cena"
+        // --- DATABASE LISTA DELLA SPESA ---
+        const shoppingLists = {
+            settimana1: {
+                "Frutta": ["Pera", "Mandorle", "Kiwi", "Noci", "Mela", "Anacardi", "Arance", "Nocciole", "Mirtilli", "Banana"],
+                "Verdura": ["Zucchine", "Bieta", "Carote", "Spinaci", "Pomodori", "Broccoletti di rapa", "Asparagi", "Radicchio rosso", "Peperoni", "Funghi prataioli", "Lattuga", "Melanzane", "Fagiolini"],
+                "Carboidrati": ["Pasta integrale", "Pane integrale", "Pane secco", "Riso integrale", "Quinoa", "Farro", "Polenta (farina di mais)", "Riso nero Venere"],
+                "Proteine": ["Ceci secchi", "Lenticchie secche", "Petto di tacchino", "Uova di gallina", "Piselli freschi", "Salmone fresco", "Fagioli borlotti secchi", "Sgombro al naturale", "Orata fresca", "Bistecca di maiale", "Vongole in scatola"],
+                "Latticini e Alternative": ["Yogurt greco intero", "Burro di centrifuga", "Ricotta di vacca", "Latte di capra", "Yogurt di Soia", "Latte di pecora"],
+                "Cereali e Fiocchi": ["Cornflakes", "Fiocchi di Avena Integrale", "Muesli", "Fiocchi di Farro"],
+                "Frutta Secca e Semi": ["Mandorle", "Noci", "Anacardi", "Nocciole", "Semi di girasole"],
+                "Condimenti e Altro": ["Marmellata biologica", "Olio di oliva extra vergine", "Olio di semi di lino"]
+            },
+            settimana2: {
+                "Frutta": ["Mela", "Nocciole", "Pera", "Pinoli", "Kiwi", "Mandorle", "Mirtilli", "Banana", "Noci"],
+                "Verdura": ["Cavolfiore", "Patate", "Prezzemolo", "Zucca gialla", "Cicoria", "Carciofi", "Pomodori", "Zucchine", "Radicchio", "Asparagi", "Carote", "Funghi", "Melanzane"],
+                "Carboidrati": ["Grano saraceno", "Pane integrale", "Riso basmati", "Pasta di grano saraceno", "Amaranto", "Riso integrale", "Pasta integrale"],
+                "Proteine": ["Ceci secchi", "Polpo", "Uova di gallina", "Lenticchie secche", "Fegato di bovino", "Tonno al naturale", "Piselli freschi", "Sgombro", "Cozze", "Fagioli borlotti secchi", "Vitellone"],
+                "Latticini e Alternative": ["Yogurt greco intero", "Ricotta di pecora", "Latte di vacca scremato", "Fiocchi di latte"],
+                "Cereali e Fiocchi": ["Muesli", "Cornflakes", "Fiocchi di Avena"],
+                "Frutta Secca e Semi": ["Nocciole", "Pinoli", "Mandorle", "Semi di zucca", "Noci"],
+                "Condimenti e Altro": ["Olio di oliva extra vergine", "Olio di semi di lino", "Burro di centrifuga", "Marmellata biologica"]
+            },
+            settimana3: {
+                "Frutta": ["Ananas", "Anacardi", "Uva", "Noci", "Ribes", "Mandorle", "Pera", "Nocciole", "Mora", "Banana", "Arachidi tostate"],
+                "Verdura": ["Broccoletti di rapa", "Carote", "Peperoni", "Fagiolini", "Pomodorini", "Melanzane", "Spinaci", "Zucca gialla", "Zucchine", "Asparagi", "Piselli freschi"],
+                "Carboidrati": ["Pasta integrale", "Pane integrale", "Riso nero Venere", "Quinoa", "Farro", "Polenta (farina di mais)"],
+                "Proteine": ["Ceci secchi", "Petto di pollo", "Lenticchie secche", "Uova di gallina", "Sgombro al naturale", "Pesce spada", "Fagioli borlotti secchi", "Vongole in scatola", "Sogliola", "Triglie"],
+                "Latticini e Alternative": ["Yogurt di Soia", "Burro di centrifuga", "Ricotta di vacca", "Latte di pecora", "Fiocchi di latte", "Latte di capra"],
+                "Cereali e Fiocchi": ["Fiocchi di Farro", "Muesli", "Cornflakes", "Fiocchi di Avena"],
+                "Frutta Secca e Semi": ["Anacardi", "Noci", "Mandorle", "Nocciole", "Semi di girasole", "Arachidi tostate"],
+                "Condimenti e Altro": ["Olio di oliva extra vergine", "Olio di semi di lino", "Marmellata biologica"]
+            },
+            settimana4: {
+                "Frutta": ["Kiwi", "Noci", "Arance", "Pinoli", "Mela", "Mandorle", "Mirtilli", "Banana", "Nocciole", "Pera"],
+                "Verdura": ["Melanzane", "Broccoletti", "Carciofi", "Cipolle", "Zucchine", "Funghi", "Radicchio", "Pomodorini", "Cicoria", "Peperoni"],
+                "Carboidrati": ["Grano saraceno", "Pane integrale", "Riso basmati", "Pasta di grano saraceno", "Amaranto", "Riso integrale", "Pasta integrale"],
+                "Proteine": ["Ceci secchi", "Salmone fresco", "Uova di gallina", "Lenticchie secche", "Fegato di bovino", "Tonno al naturale", "Piselli freschi", "Sarde", "Cozze", "Fagioli Borlotti freschi", "Bistecca di maiale"],
+                "Latticini e Alternative": ["Yogurt greco", "Ricotta di pecora", "Latte di vacca scremato", "Fiocchi di latte"],
+                "Cereali e Fiocchi": ["Cornflakes", "Fiocchi di Farro", "Muesli"],
+                "Frutta Secca e Semi": ["Noci", "Pinoli", "Mandorle", "Semi di zucca", "Nocciole"],
+                "Condimenti e Altro": ["Olio di oliva extra vergine", "Olio di semi di lino", "Burro di centrifuga", "Marmellata biologica"]
+            }
         };
-        
+
+        const mealTypes = {
+            colazione: "Colazione", merenda: "Spuntino", pranzo: "Pranzo", cena: "Cena"
+        };
         const dayNames = {
             lun: 'Lunedì', mar: 'Martedì', mer: 'Mercoledì', gio: 'Giovedì', ven: 'Venerdì', sab: 'Sabato', dom: 'Domenica'
         };
-
         const dayKeys = ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom'];
 
         let activeWeek = 'settimana1';
         let activeDayKey = 'lun';
+        let currentView = 'plan'; // 'plan' or 'list'
 
         const weekNav = document.getElementById('week-nav');
         const dayNav = document.getElementById('day-nav');
-        const container = document.getElementById('meal-plan-container');
-
-        // --- FUNZIONI ---
+        const mealContainer = document.getElementById('meal-plan-container');
+        const shoppingListContainer = document.getElementById('list-view-container');
+        
+        const planViewBtn = document.getElementById('plan-view-btn');
+        const listViewBtn = document.getElementById('list-view-btn');
+        const planViewContainer = document.getElementById('plan-view-container');
         
         function createMealCard(mealKey, mealData) {
-            return `
-                <div class="meal-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row mb-6 hover:shadow-xl hover:transform hover:-translate-y-1">
-                    <div class="md:w-1/3 bg-blue-600 text-white p-6 flex flex-col justify-center items-center">
-                        <h3 class="text-xl font-bold">${mealTypes[mealKey]}</h3>
-                    </div>
-                    <div class="p-6 md:w-2/3">
-                        <h4 class="font-bold text-lg text-gray-900">${mealData.nome}</h4>
-                        <p class="text-gray-500 font-medium mb-2">${mealData.grammatura}</p>
-                        <p class="text-gray-700">${mealData.descrizione}</p>
-                    </div>
-                </div>
-            `;
+            return `<div class="meal-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row mb-6 hover:shadow-xl hover:transform hover:-translate-y-1">
+                        <div class="md:w-1/3 bg-blue-600 text-white p-6 flex flex-col justify-center items-center">
+                            <h3 class="text-xl font-bold">${mealTypes[mealKey]}</h3>
+                        </div>
+                        <div class="p-6 md:w-2/3">
+                            <h4 class="font-bold text-lg text-gray-900">${mealData.nome}</h4>
+                            <p class="text-gray-500 font-medium mb-2">${mealData.grammatura}</p>
+                            <p class="text-gray-700">${mealData.descrizione}</p>
+                        </div>
+                    </div>`;
         }
 
         function displayDayPlan(weekKey, dayKey) {
@@ -286,36 +355,97 @@
             activeDayKey = dayKey;
 
             if (!dayData) {
-                container.innerHTML = '<p class="text-center text-red-500">Nessun dato disponibile per questo giorno.</p>';
+                mealContainer.innerHTML = '<p class="text-center text-red-500">Nessun dato disponibile.</p>';
                 return;
             }
 
             let content = `<h2 class="text-2xl font-bold text-center mb-6 text-blue-800">${dayNames[dayKey]} - ${weekKey.replace('settimana', 'Settimana ')}</h2>`;
             content += Object.keys(mealTypes).map(mealKey => createMealCard(mealKey, dayData[mealKey])).join('');
-            container.innerHTML = content;
+            mealContainer.innerHTML = content;
             
             updateActiveButtons();
         }
 
+        function displayShoppingList(weekKey) {
+            const listData = shoppingLists[weekKey];
+            activeWeek = weekKey;
+             if (!listData) {
+                shoppingListContainer.innerHTML = '<p class="text-center text-red-500">Nessun dato disponibile.</p>';
+                return;
+            }
+
+            let content = `<h2 class="text-2xl font-bold text-center mb-8 text-blue-800">Lista della Spesa - ${weekKey.replace('settimana', 'Settimana ')}</h2>`;
+            
+            content += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">';
+
+            for (const category in listData) {
+                content += `<div class="bg-white p-6 rounded-xl shadow-md">
+                                <h3 class="text-lg font-bold text-blue-700 border-b-2 border-blue-200 pb-2 mb-4">${category}</h3>
+                                <div class="space-y-3">`;
+                listData[category].forEach((item, index) => {
+                    const itemId = `${weekKey}-${category}-${index}`;
+                    content += `<div class="shopping-item flex items-center">
+                                    <input type="checkbox" id="${itemId}" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                    <label for="${itemId}" class="ml-3 text-gray-700 cursor-pointer">${item}</label>
+                                </div>`;
+                });
+                content += `</div></div>`;
+            }
+
+            content += '</div>';
+            shoppingListContainer.innerHTML = content;
+            updateActiveButtons();
+        }
+
+        function toggleView(view) {
+            currentView = view;
+            if (view === 'plan') {
+                planViewContainer.classList.remove('hidden');
+                shoppingListContainer.classList.add('hidden');
+                planViewBtn.classList.add('active');
+                listViewBtn.classList.remove('active');
+                displayDayPlan(activeWeek, activeDayKey);
+            } else {
+                planViewContainer.classList.add('hidden');
+                shoppingListContainer.classList.remove('hidden');
+                planViewBtn.classList.remove('active');
+                listViewBtn.classList.add('active');
+                displayShoppingList(activeWeek);
+            }
+        }
+        
+        function handleWeekChange(weekKey) {
+            activeWeek = weekKey;
+            if(currentView === 'plan') {
+                displayDayPlan(weekKey, activeDayKey);
+            } else {
+                displayShoppingList(weekKey);
+            }
+        }
+
         function updateActiveButtons() {
-            // Update week buttons
             document.querySelectorAll('#week-nav .nav-button').forEach(button => {
                 button.classList.toggle('active', button.dataset.week === activeWeek);
             });
-            // Update day buttons
-            document.querySelectorAll('#day-nav .day-nav-button').forEach(button => {
-                button.classList.toggle('active', button.dataset.day === activeDayKey);
-            });
+            if (currentView === 'plan') {
+                document.querySelectorAll('#day-nav .day-nav-button').forEach(button => {
+                    button.classList.toggle('active', button.dataset.day === activeDayKey);
+                });
+            }
         }
         
         function setupNavigation() {
+            // Main view buttons
+            planViewBtn.onclick = () => toggleView('plan');
+            listViewBtn.onclick = () => toggleView('list');
+            
             // Week navigation
             Object.keys(mealPlan).forEach((weekKey, index) => {
                 const button = document.createElement('button');
                 button.textContent = `Settimana ${index + 1}`;
                 button.dataset.week = weekKey;
                 button.className = 'nav-button px-4 py-2 rounded-lg text-sm sm:text-base font-medium text-gray-700 hover:bg-blue-100 transition-colors duration-200';
-                button.onclick = () => displayDayPlan(weekKey, activeDayKey);
+                button.onclick = () => handleWeekChange(weekKey);
                 weekNav.appendChild(button);
             });
             
@@ -325,19 +455,20 @@
                 button.textContent = dayNames[dayKey].substring(0,3);
                 button.dataset.day = dayKey;
                 button.className = 'day-nav-button px-3 py-2 text-sm sm:text-base border-2 border-gray-300 rounded-lg font-semibold text-gray-600 hover:bg-gray-200 transition-colors duration-200';
-                button.onclick = () => displayDayPlan(activeWeek, dayKey);
+                button.onclick = () => {
+                    activeDayKey = dayKey;
+                    displayDayPlan(activeWeek, dayKey);
+                };
                 dayNav.appendChild(button);
             });
         }
 
-        // --- INIZIALIZZAZIONE ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Imposta il giorno corrente all'avvio
-            const todayIndex = (new Date().getDay() + 6) % 7; // 0=Lun, 1=Mar, ..., 6=Dom
-            const initialDayKey = dayKeys[todayIndex];
+            const todayIndex = (new Date().getDay() + 6) % 7;
+            activeDayKey = dayKeys[todayIndex];
             
             setupNavigation();
-            displayDayPlan('settimana1', initialDayKey);
+            toggleView('plan'); // Start with plan view
         });
 
     </script>
