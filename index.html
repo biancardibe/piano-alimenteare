@@ -10,6 +10,10 @@
         body {
             font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
+            padding-top: 60px; /* Spazio per l'header fisso */
+        }
+        #sticky-header {
+            transition: opacity 0.3s ease;
         }
         .meal-card {
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
@@ -38,20 +42,44 @@
             color: #1D4ED8; /* text-blue-700 */
             border-bottom-color: #1D4ED8; /* border-blue-700 */
         }
-        /* Stile per la checkbox e l'effetto barrato */
         .shopping-item input[type="checkbox"]:checked + label {
             text-decoration: line-through;
-            color: #9CA3AF; /* text-gray-400 */
+            color: #9CA3AF;
         }
         .shopping-item label span {
             transition: color 0.2s;
         }
         .shopping-item input[type="checkbox"]:checked + label span {
-             color: #9CA3AF; /* text-gray-400 */
+             color: #9CA3AF;
+        }
+
+        /* Animazioni di Swipe */
+        #meal-plan-container {
+            transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
+            will-change: transform, opacity;
+        }
+        .slide-out-left {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+        .slide-out-right {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        .slide-in {
+            transform: translateX(0);
+            opacity: 1;
         }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
+
+    <!-- Header Fisso -->
+    <div id="sticky-header" class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm shadow-md h-[60px] flex items-center justify-center px-4 z-20 hidden">
+        <h2 class="text-lg font-bold text-gray-800">
+            <span id="sticky-week"></span> - <span id="sticky-day"></span>
+        </h2>
+    </div>
 
     <div id="app" class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         
@@ -67,18 +95,15 @@
         </nav>
 
         <!-- Week Navigation -->
-        <nav id="week-nav" class="flex justify-center bg-white p-2 rounded-xl shadow-md mb-6 sticky top-2 z-10">
+        <nav id="week-nav" class="flex justify-center bg-white p-2 rounded-xl shadow-md mb-6 sticky top-[70px] z-10">
             <!-- I pulsanti delle settimane verranno inseriti qui dal JavaScript -->
         </nav>
         
         <!-- Container for Meal Plan View -->
-        <div id="plan-view-container">
-            <!-- Day of the Week Navigation -->
+        <div id="plan-view-container" class="overflow-x-hidden">
             <nav id="day-nav" class="flex flex-wrap justify-center gap-2 mb-8">
                  <!-- I pulsanti dei giorni verranno inseriti qui dal JavaScript -->
             </nav>
-    
-            <!-- Meal Plan Display -->
             <main id="meal-plan-container">
                 <!-- Il contenuto del piano alimentare verrà caricato qui -->
             </main>
@@ -96,7 +121,7 @@
     </div>
 
     <script>
-        // --- DATABASE DEL PIANO ALIMENTARE AGGIORNATO ---
+        // --- DATABASE DEL PIANO ALIMENTARE ---
         const mealPlan = {
             settimana1: {
                 lun: {
@@ -379,7 +404,7 @@
                     </div>`;
         }
 
-        function displayDayPlan(weekKey, dayKey) {
+        function displayDayPlan(weekKey, dayKey, direction = 'in') {
             const dayData = mealPlan[weekKey]?.[dayKey];
             activeWeek = weekKey;
             activeDayKey = dayKey;
@@ -391,9 +416,24 @@
 
             let content = `<h2 class="text-2xl font-bold text-center mb-6 text-blue-800">${dayNames[dayKey]} - ${weekKey.replace('settimana', 'Settimana ')}</h2>`;
             content += Object.keys(mealTypes).map(mealKey => dayData[mealKey] ? createMealCard(mealKey, dayData[mealKey]) : '').join('');
-            mealContainer.innerHTML = content;
+            
+            // Gestione animazione
+            if (direction === 'in') {
+                 mealContainer.innerHTML = content;
+            } else {
+                const animationClass = direction === 'next' ? 'slide-out-left' : 'slide-out-right';
+                mealContainer.classList.add(animationClass);
+                
+                mealContainer.addEventListener('transitionend', () => {
+                    mealContainer.innerHTML = content;
+                    mealContainer.classList.remove('slide-out-left', 'slide-out-right');
+                    mealContainer.classList.add('slide-in');
+                }, { once: true });
+                 mealContainer.classList.remove('slide-in');
+            }
             
             updateActiveButtons();
+            updateStickyHeader(weekKey, dayKey);
         }
 
         function displayShoppingList(weekKey) {
@@ -428,19 +468,31 @@
             updateActiveButtons();
         }
 
+        function updateStickyHeader(weekKey, dayKey) {
+            const stickyWeek = document.getElementById('sticky-week');
+            const stickyDay = document.getElementById('sticky-day');
+            if(stickyWeek && stickyDay) {
+                stickyWeek.textContent = weekKey.replace('settimana', 'Settimana ');
+                stickyDay.textContent = dayNames[dayKey];
+            }
+        }
+
         function toggleView(view) {
+            const stickyHeader = document.getElementById('sticky-header');
             currentView = view;
             if (view === 'plan') {
                 planViewContainer.classList.remove('hidden');
                 shoppingListContainer.classList.add('hidden');
                 planViewBtn.classList.add('active');
                 listViewBtn.classList.remove('active');
+                stickyHeader.classList.remove('hidden');
                 displayDayPlan(activeWeek, activeDayKey);
             } else {
                 planViewContainer.classList.add('hidden');
                 shoppingListContainer.classList.remove('hidden');
                 planViewBtn.classList.remove('active');
                 listViewBtn.classList.add('active');
+                stickyHeader.classList.add('hidden');
                 displayShoppingList(activeWeek);
             }
         }
@@ -484,7 +536,6 @@
                 button.dataset.day = dayKey;
                 button.className = 'day-nav-button px-3 py-2 text-sm sm:text-base border-2 border-gray-300 rounded-lg font-semibold text-gray-600 hover:bg-gray-200 transition-colors duration-200';
                 button.onclick = () => {
-                    activeDayKey = dayKey;
                     displayDayPlan(activeWeek, dayKey);
                 };
                 dayNav.appendChild(button);
@@ -494,29 +545,44 @@
         // --- SWIPE FUNCTIONALITY ---
         let touchstartX = 0;
         let touchendX = 0;
+        let isAnimating = false;
 
-        function navigateToNextDay() {
+        function navigateDay(direction) {
+             if (isAnimating) return;
+             isAnimating = true;
+
             let currentIndex = dayKeys.indexOf(activeDayKey);
-            currentIndex = (currentIndex + 1) % dayKeys.length;
-            activeDayKey = dayKeys[currentIndex];
-            displayDayPlan(activeWeek, activeDayKey);
-        }
-        
-        function navigateToPreviousDay() {
-            let currentIndex = dayKeys.indexOf(activeDayKey);
-            currentIndex = (currentIndex - 1 + dayKeys.length) % dayKeys.length;
-            activeDayKey = dayKeys[currentIndex];
-            displayDayPlan(activeWeek, activeDayKey);
+            const nextIndex = direction === 'next' 
+                ? (currentIndex + 1) % dayKeys.length
+                : (currentIndex - 1 + dayKeys.length) % dayKeys.length;
+            
+            const animationClass = direction === 'next' ? 'slide-out-left' : 'slide-out-right';
+            
+            mealContainer.classList.add(animationClass);
+            mealContainer.addEventListener('transitionend', function handler() {
+                mealContainer.removeEventListener('transitionend', handler);
+                
+                activeDayKey = dayKeys[nextIndex];
+                displayDayPlan(activeWeek, activeDayKey, 'no-animation');
+                
+                mealContainer.classList.remove(animationClass);
+                
+                // Allow new animation
+                setTimeout(() => {
+                    isAnimating = false;
+                }, 50);
+
+            }, { once: true });
         }
 
         function handleGesture() {
-            if (currentView !== 'plan') return; // Only swipe on plan view
-            const swipeThreshold = 50; // min distance for a swipe
+            if (currentView !== 'plan') return; 
+            const swipeThreshold = 50;
             if (touchendX < touchstartX - swipeThreshold) {
-                navigateToNextDay();
+                navigateDay('next');
             }
             if (touchendX > touchstartX + swipeThreshold) {
-                navigateToPreviousDay();
+                navigateDay('previous');
             }
         }
 
@@ -542,4 +608,4 @@
     </script>
 
 </body>
-</html>
+</ht
