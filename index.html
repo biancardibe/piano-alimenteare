@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piano Alimentare Settimanale</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .meal-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .nav-button.active {
+            background-color: #1D4ED8; /* bg-blue-700 */
+            color: white;
+            font-weight: 600;
+        }
+         .day-nav-button.active {
+            background-color: #3B82F6; /* bg-blue-500 */
+            color: white;
+            border-color: #3B82F6; /* border-blue-500 */
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div id="app" class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Il Tuo Piano Alimentare</h1>
+            <p class="mt-2 text-lg text-gray-600">4 settimane di alimentazione bilanciata</p>
+        </header>
+
+        <!-- Week Navigation -->
+        <nav id="week-nav" class="flex justify-center bg-white p-2 rounded-xl shadow-md mb-6 sticky top-2 z-10">
+            <!-- I pulsanti delle settimane verranno inseriti qui dal JavaScript -->
+        </nav>
+
+        <!-- Day of the Week Navigation -->
+        <nav id="day-nav" class="flex flex-wrap justify-center gap-2 mb-8">
+             <!-- I pulsanti dei giorni verranno inseriti qui dal JavaScript -->
+        </nav>
+
+        <!-- Meal Plan Display -->
+        <main id="meal-plan-container">
+            <!-- Il contenuto del piano alimentare verrà caricato qui -->
+        </main>
+        
+        <footer class="text-center mt-12 text-sm text-gray-500">
+            <p>Questo piano alimentare è stato generato sulla base delle tue indicazioni. Consulta sempre un professionista.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        // --- DATABASE DEL PIANO ALIMENTARE ---
+        const mealPlan = {
+            // ==================== SETTIMANA 1 ====================
+            settimana1: {
+                lun: {
+                    colazione: { nome: "Yogurt greco intero e Cornflakes", grammatura: "125g + 30g", descrizione: "Yogurt greco con aggiunta di cornflakes." },
+                    merenda: { nome: "Pera e Mandorle", grammatura: "150g + 30g", descrizione: "Una pera fresca accompagnata da mandorle secche." },
+                    pranzo: { nome: "Pasta integrale con Ceci e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Pasta condita con ceci e zucchine saltate. Condire con 20g di olio EVO e 5g di olio di lino." },
+                    cena: { nome: "Petto di tacchino e Bieta", grammatura: "150g + 100g", descrizione: "Tacchino cotto al forno con contorno di bieta lessa. Accompagnare con 60g di pane integrale. Condire con 20g di olio EVO e 5g di olio di lino." }
+                },
+                mar: {
+                    colazione: { nome: "Pane secco, burro e marmellata", grammatura: "90g", descrizione: "Pane integrale secco con un velo di burro di centrifuga e marmellata biologica." },
+                    merenda: { nome: "Kiwi e Noci", grammatura: "150g + 30g", descrizione: "Due kiwi freschi e noci secche." },
+                    pranzo: { nome: "Riso integrale con Lenticchie e Carote", grammatura: "80g + 60g + 100g", descrizione: "Riso integrale con lenticchie e carote. Condire con 20g di olio EVO e 5g di olio di lino." },
+                    cena: { nome: "Uova sode e Spinaci", grammatura: "120g + 100g", descrizione: "Due uova sode con spinaci al vapore. Accompagnare con 60g di pane integrale. Condire con 20g di olio EVO." }
+                },
+                mer: {
+                    colazione: { nome: "Ricotta di vacca e Fiocchi di Avena", grammatura: "80g + 30g", descrizione: "Ricotta fresca con fiocchi d'avena integrali." },
+                    merenda: { nome: "Mela e Anacardi", grammatura: "150g + 30g", descrizione: "Una mela e anacardi tostati." },
+                    pranzo: { nome: "Quinoa con Piselli e Pomodori", grammatura: "80g + 60g + 200g", descrizione: "Insalata di quinoa con piselli freschi e pomodori. Condire con 20g di olio EVO e 5g di olio di lino." },
+                    cena: { nome: "Salmone fresco e Broccoletti", grammatura: "150g + 200g", descrizione: "Trancio di salmone al vapore con broccoletti di rapa. Accompagnare con 60g di pane integrale. Condire con 20g di olio EVO." }
+                },
+                gio: {
+                    colazione: { nome: "Latte di capra e Muesli", grammatura: "200g + 30g", descrizione: "Tazza di latte di capra con muesli senza zuccheri aggiunti." },
+                    merenda: { nome: "Arance e Nocciole", grammatura: "150g + 30g", descrizione: "Un'arancia fresca e nocciole secche." },
+                    pranzo: { nome: "Farro con Fagioli e Radicchio", grammatura: "80g + 60g + 100g", descrizione: "Insalata di farro con fagioli borlotti e radicchio rosso. Condire con 20g di olio EVO e 5g di olio di lino." },
+                    cena: { nome: "Uova strapazzate e Asparagi", grammatura: "120g + 100g", descrizione: "Due uova strapazzate con asparagi al vapore. Accompagnare con 60g di pane secco. Condire con 20g di olio EVO." }
+                },
+                ven: {
+                    colazione: { nome: "Pane secco, burro e marmellata", grammatura: "90g", descrizione: "Pane integrale secco con burro di centrifuga e marmellata biologica." },
+                    merenda: { nome: "Mirtilli e Mandorle", grammatura: "125g + 30g", descrizione: "Una coppetta di mirtilli freschi e mandorle." },
+                    pranzo: { nome: "Riso nero Venere con Sgombro e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Riso Venere con sgombro al naturale e zucchine grigliate. Condire con 20g di olio EVO." },
+                    cena: { nome: "Orata al forno e Peperoni", grammatura: "150g + 150g", descrizione: "Orata al cartoccio con peperoni arrostiti. Accompagnare con 60g di pane integrale. Condire con 20g di olio EVO." }
+                },
+                sab: {
+                    colazione: { nome: "Uova sode e frutta", grammatura: "120g + 150g", descrizione: "Due uova sode con una mela o pera." },
+                    merenda: { nome: "Yogurt di Soia e Semi di girasole", grammatura: "125g + 20g", descrizione: "Yogurt di soia bianco con semi di girasole." },
+                    pranzo: { nome: "Polenta con Funghi", grammatura: "80g + 150g", descrizione: "Polenta di mais con funghi prataioli trifolati. Condire con 20g di olio EVO." },
+                    cena: { nome: "Bistecca di maiale e Insalata mista", grammatura: "150g + 150g", descrizione: "Bistecca di maiale magra alla griglia con lattuga e pomodori. Accompagnare con 60g di pane integrale. Condire con 20g di olio EVO." }
+                },
+                dom: {
+                    colazione: { nome: "Latte di pecora e Fiocchi di Farro", grammatura: "200g + 30g", descrizione: "Latte di pecora con fiocchi di farro." },
+                    merenda: { nome: "Banana e Noci", grammatura: "150g + 30g", descrizione: "Una banana non troppo matura e noci secche." },
+                    pranzo: { nome: "Pasta integrale con Vongole e Melanzane", grammatura: "80g + 60g + 60g", descrizione: "Pasta con vongole al naturale e melanzane a cubetti. Condire con 20g di olio EVO." },
+                    cena: { nome: "Uova all'occhio di bue e Fagiolini", grammatura: "120g + 100g", descrizione: "Due uova con fagiolini al vapore. Accompagnare con 60g di pane integrale. Condire con 20g di olio EVO e 5g di olio di lino." }
+                }
+            },
+            // ==================== SETTIMANA 2 ====================
+            settimana2: {
+                 lun: {
+                    colazione: { nome: "Yogurt greco intero e Muesli", grammatura: "125g + 30g", descrizione: "Yogurt greco con aggiunta di muesli." },
+                    merenda: { nome: "Mela e Nocciole", grammatura: "150g + 30g", descrizione: "Una mela fresca accompagnata da nocciole secche." },
+                    pranzo: { nome: "Grano saraceno con Ceci e Cavolfiore", grammatura: "80g + 60g + 60g", descrizione: "Grano saraceno con ceci e cavolfiore al vapore. Condire con 20g di olio EVO e 5g di olio di lino." },
+                    cena: { nome: "Polpo con patate e prezzemolo", grammatura: "200g + 200g", descrizione: "Polpo bollito con patate lesse, condito con prezzemolo, limone e olio. Accompagnare con 60g pane integrale." }
+                },
+                mar: {
+                    colazione: { nome: "Uova strapazzate", grammatura: "120g", descrizione: "Due uova strapazzate, servite con una fetta di pane integrale (parte dei 90g)." },
+                    merenda: { nome: "Pera e Pinoli", grammatura: "150g + 30g", descrizione: "Una pera fresca e pinoli." },
+                    pranzo: { nome: "Riso basmati con Lenticchie e Zucca", grammatura: "80g + 60g + 60g", descrizione: "Riso basmati con lenticchie e cubetti di zucca gialla. Condire con 20g di olio EVO." },
+                    cena: { nome: "Fegato di bovino e Cicoria", grammatura: "150g + 100g", descrizione: "Fegato saltato in padella con cipolla e contorno di cicoria ripassata. Accompagnare con 60g di pane integrale." }
+                },
+                mer: {
+                    colazione: { nome: "Ricotta di pecora e Cornflakes", grammatura: "80g + 30g", descrizione: "Ricotta fresca di pecora con cornflakes." },
+                    merenda: { nome: "Kiwi e Mandorle", grammatura: "150g + 30g", descrizione: "Due kiwi e mandorle secche." },
+                    pranzo: { nome: "Pasta di grano saraceno con Tonno e Carciofi", grammatura: "80g + 60g + 60g", descrizione: "Penne di grano saraceno con tonno al naturale e cuori di carciofo. Condire con 20g di olio EVO." },
+                    cena: { nome: "Uova sode e Insalata di pomodori", grammatura: "120g + 200g", descrizione: "Due uova sode con insalata di pomodori. Accompagnare con 60g di pane integrale. Condire con 20g di olio EVO." }
+                },
+                 gio: {
+                    colazione: { nome: "Pane secco, burro e marmellata", grammatura: "90g", descrizione: "Pane integrale secco con un velo di burro di centrifuga e marmellata biologica." },
+                    merenda: { nome: "Mirtilli e Semi di zucca", grammatura: "125g + 20g", descrizione: "Una coppetta di mirtilli e semi di zucca." },
+                    pranzo: { nome: "Amaranto con Piselli e Zucchine", grammatura: "80g + 60g + 60g", descrizione: "Amaranto con piselli e zucchine saltate. Condire con 20g di olio EVO e 5g di olio di lino." },
+                    cena: { nome: "Sgombro al forno con Radicchio", grammatura: "150g + 100g", descrizione: "Sgombro al forno con radicchio grigliato. Accompagnare con 60g di pane integrale. Condire con 20g di olio EVO." }
+                },
+                ven: {
+                    colazione: { nome: "Latte di vacca e Fiocchi di Avena", grammatura: "200g + 30g", descrizione: "Latte scremato con fiocchi d'avena integrali." },
+                    merenda: { nome: "Banana e Noci", grammatura: "150g + 30g", descrizione: "Una banana fresca e noci." },
+                    pranzo: { nome: "Riso integrale con Cozze e Melanzane", grammatura: "80g + 60g + 60g", descrizione: "Riso con cozze e melanzane. Condire con 20g di olio EVO." },
+                    cena: { nome: "Uova all'occhio di bue e Asparagi", grammatura: "120g + 100g", descrizione: "Due uova al tegamino con asparagi. Accompagnare con 60g di pane secco. Condire con 20g di olio EVO." }
+                },
+                sab: {
+                    colazione: { nome: "Pane secco, burro e marmellata", grammatura: "90g", descrizione: "Pane integrale secco con burro e marmellata." },
+                    merenda: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Una porzione di fiocchi di latte freschi." },
+                    pranzo: { nome: "Pasta integrale con Fagioli e Carote", grammatura: "80g + 60g + 100g", descrizione: "Pasta e fagioli con carote. Condire con 20g di olio EVO e 5g di olio di lino." },
+                    cena: { nome: "Vitellone e Funghi", grammatura: "150g + 150g", descrizione: "Bistecca di vitellone ai ferri con funghi trifolati. Accompagnare con 60g di pane integrale. Condire con 20g di olio EVO." }
+                },
+                dom: {
+                    colazione: { nome: "Uova sode", grammatura: "120g", descrizione: "Due uova sode accompagnate da un frutto (150g)." },
+                    merenda: { nome: "Mela e Mandorle", grammatura: "150g + 30g", descrizione: "Una mela e mandorle." },
+                    pranzo: { nome: "Lasagne con ragù di lenticchie", grammatura: "Porzione media", descrizione: "Piatto libero. Es: lasagne con sfoglia integrale e ragù di lenticchie." },
+                    cena: { nome: "Minestra di verdure e legumi", grammatura: "Piatto abbondante", descrizione: "Passato di verdure miste (zucca, carote, zucchine) con aggiunta di lenticchie secche (80g). Servire con 60g di pane integrale." }
+                }
+            },
+            // ==================== SETTIMANA 3 ====================
+            settimana3: {
+                // Simile alla settimana 1 ma con variazioni
+                lun: {
+                    colazione: { nome: "Yogurt di Soia e Fiocchi di Farro", grammatura: "125g + 30g", descrizione: "Yogurt di soia con fiocchi di farro." },
+                    merenda: { nome: "Ananas e Anacardi", grammatura: "150g + 30g", descrizione: "Fette di ananas fresco e anacardi." },
+                    pranzo: { nome: "Pasta integrale con Ceci e Broccoletti", grammatura: "80g + 60g + 60g", descrizione: "Pasta con ceci e broccoletti di rapa saltati. Condire con 20g olio EVO e 5g olio di lino." },
+                    cena: { nome: "Petto di pollo alla piastra e Carote", grammatura: "150g + 100g", descrizione: "Pollo grigliato con carote julienne. Servire con 60g pane integrale. Condire con 20g olio EVO." }
+                },
+                mar: {
+                    colazione: { nome: "Pane secco, burro e marmellata", grammatura: "90g", descrizione: "Pane integrale secco con burro e marmellata biologica." },
+                    merenda: { nome: "Uva e Noci", grammatura: "150g + 30g", descrizione: "Un grappolo d'uva e noci secche." },
+                    pranzo: { nome: "Riso nero Venere con Lenticchie e Peperoni", grammatura: "80g + 60g + 150g", descrizione: "Riso venere con lenticchie e peperoni arrostiti. Condire con 20g olio EVO." },
+                    cena: { nome: "Uova sode e Fagiolini", grammatura: "120g + 100g", descrizione: "Due uova sode con fagiolini al vapore. Servire con 60g pane integrale. Condire con 20g olio EVO." }
+                },
+                mer: {
+                    colazione: { nome: "Ricotta di vacca e Muesli", grammatura: "80g + 30g", descrizione: "Ricotta fresca con muesli." },
+                    merenda: { nome: "Ribes e Mandorle", grammatura: "125g + 30g", descrizione: "Una coppetta di ribes e mandorle." },
+                    pranzo: { nome: "Quinoa con Sgombro e Pomodorini", grammatura: "80g + 60g + 200g", descrizione: "Insalata di quinoa con sgombro e pomodorini. Condire con 20g olio EVO." },
+                    cena: { nome: "Pesce spada alla griglia e Melanzane", grammatura: "150g + 125g", descrizione: "Trancio di pesce spada con melanzane grigliate. Servire con 60g pane integrale. Condire con 20g olio EVO." }
+                },
+                gio: {
+                    colazione: { nome: "Latte di pecora e Cornflakes", grammatura: "200g + 30g", descrizione: "Tazza di latte di pecora con cornflakes." },
+                    merenda: { nome: "Pera e Nocciole", grammatura: "150g + 30g", descrizione: "Una pera fresca e nocciole." },
+                    pranzo: { nome: "Farro con Fagioli e Zucca", grammatura: "80g + 60g + 200g", descrizione: "Insalata di farro con fagioli e zucca al forno. Condire con 20g olio EVO e 5g olio di lino." },
+                    cena: { nome: "Uova strapazzate e Spinaci", grammatura: "120g + 100g", descrizione: "Due uova strapazzate con spinaci freschi. Servire con 60g pane secco. Condire con 20g olio EVO." }
+                },
+                ven: {
+                    colazione: { nome: "Pane secco, burro e marmellata", grammatura: "90g", descrizione: "Pane integrale secco con burro e marmellata." },
+                    merenda: { nome: "Mora e Semi di girasole", grammatura: "125g + 20g", descrizione: "Coppetta di more e semi di girasole." },
+                    pranzo: { nome: "Riso integrale con Vongole e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Riso con vongole al naturale e zucchine. Condire con 20g olio EVO." },
+                    cena: { nome: "Sogliola al limone e Asparagi", grammatura: "150g + 100g", descrizione: "Filetti di sogliola cotti in padella con limone e asparagi al vapore. Servire con 60g pane integrale." }
+                },
+                sab: {
+                    colazione: { nome: "Uova sode", grammatura: "120g", descrizione: "Due uova sode con un frutto a scelta (150g)." },
+                    merenda: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Una porzione di fiocchi di latte." },
+                    pranzo: { nome: "Polenta con ragù di lenticchie", grammatura: "80g + 100g", descrizione: "Polenta con ragù di lenticchie e verdure. Condire con 20g olio EVO." },
+                    cena: { nome: "Triglie alla livornese", grammatura: "150g", descrizione: "Triglie cotte in guazzetto di pomodoro. Servire con 60g pane integrale per la scarpetta." }
+                },
+                dom: {
+                    colazione: { nome: "Latte di capra e Fiocchi di Avena", grammatura: "200g + 30g", descrizione: "Latte di capra con fiocchi d'avena." },
+                    merenda: { nome: "Banana e Arachidi tostate", grammatura: "150g + 30g", descrizione: "Una banana e arachidi." },
+                    pranzo: { nome: "Piatto libero", grammatura: "A piacere", descrizione: "Goditi un pasto libero, magari una pizza integrale o un piatto che ti piace particolarmente." },
+                    cena: { nome: "Uova all'occhio di bue e Piselli", grammatura: "120g + 240g", descrizione: "Due uova con piselli freschi in umido. Servire con 60g pane integrale. Condire con 20g olio EVO." }
+                }
+            },
+            // ==================== SETTIMANA 4 ====================
+            settimana4: {
+                // Simile alla settimana 2 ma con variazioni
+                 lun: {
+                    colazione: { nome: "Yogurt greco e Cornflakes", grammatura: "125g + 30g", descrizione: "Yogurt greco con cornflakes." },
+                    merenda: { nome: "Kiwi e Noci", grammatura: "150g + 30g", descrizione: "Due kiwi e noci." },
+                    pranzo: { nome: "Grano saraceno con Ceci e Melanzane", grammatura: "80g + 60g + 125g", descrizione: "Grano saraceno con ceci e melanzane grigliate. Condire con 20g olio EVO e 5g olio di lino." },
+                    cena: { nome: "Salmone al vapore e Broccoletti", grammatura: "150g + 200g", descrizione: "Salmone cotto al vapore con broccoletti. Accompagnare con 60g pane integrale. Condire con 20g olio EVO." }
+                },
+                mar: {
+                    colazione: { nome: "Uova sode", grammatura: "120g", descrizione: "Due uova sode con un frutto a scelta (150g)." },
+                    merenda: { nome: "Arance e Pinoli", grammatura: "150g + 30g", descrizione: "Un'arancia e pinoli." },
+                    pranzo: { nome: "Riso basmati con Lenticchie e Carciofi", grammatura: "80g + 60g + 250g", descrizione: "Riso con lenticchie e carciofi. Condire con 20g olio EVO." },
+                    cena: { nome: "Fegato di bovino e Cipolle", grammatura: "150g + 100g", descrizione: "Fegato alla veneziana (con cipolle). Servire con 60g pane integrale. (Seconda volta nel mese)" }
+                },
+                mer: {
+                    colazione: { nome: "Ricotta di pecora e Fiocchi di Farro", grammatura: "80g + 30g", descrizione: "Ricotta di pecora con fiocchi di farro." },
+                    merenda: { nome: "Mela e Mandorle", grammatura: "150g + 30g", descrizione: "Mela e mandorle." },
+                    pranzo: { nome: "Pasta di grano saraceno con Tonno e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Pasta con tonno al naturale e zucchine. Condire con 20g olio EVO." },
+                    cena: { nome: "Uova strapazzate e Funghi", grammatura: "120g + 150g", descrizione: "Uova strapazzate con funghi trifolati. Servire con 60g pane secco. Condire con 20g olio EVO." }
+                },
+                 gio: {
+                    colazione: { nome: "Pane secco, burro e marmellata", grammatura: "90g", descrizione: "Pane secco con burro e marmellata." },
+                    merenda: { nome: "Mirtilli e Semi di zucca", grammatura: "125g + 20g", descrizione: "Mirtilli e semi di zucca." },
+                    pranzo: { nome: "Amaranto con Piselli e Radicchio", grammatura: "80g + 60g + 100g", descrizione: "Amaranto con piselli e radicchio. Condire con 20g olio EVO e 5g olio di lino." },
+                    cena: { nome: "Sarda a beccafico e Insalata", grammatura: "150g + 100g", descrizione: "Sarde a beccafico (ricetta siciliana) con insalata mista. Servire con 60g pane integrale." }
+                },
+                ven: {
+                    colazione: { nome: "Latte di vacca e Muesli", grammatura: "200g + 30g", descrizione: "Latte scremato con muesli." },
+                    merenda: { nome: "Banana e Nocciole", grammatura: "150g + 30g", descrizione: "Banana e nocciole." },
+                    pranzo: { nome: "Riso integrale con Cozze e Pomodorini", grammatura: "80g + 60g + 200g", descrizione: "Riso con cozze e pomodorini freschi. Condire con 20g olio EVO." },
+                    cena: { nome: "Uova sode e Cicoria", grammatura: "120g + 100g", descrizione: "Due uova sode con cicoria ripassata. Servire con 60g pane integrale. Condire con 20g olio EVO." }
+                },
+                sab: {
+                    colazione: { nome: "Pane secco, burro e marmellata", grammatura: "90g", descrizione: "Pane secco con burro e marmellata." },
+                    merenda: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Una porzione di fiocchi di latte." },
+                    pranzo: { nome: "Pasta integrale con Fagioli Borlotti", grammatura: "80g + 120g", descrizione: "Pasta e fagioli borlotti freschi. Condire con 20g olio EVO e 5g olio di lino." },
+                    cena: { nome: "Bistecca di maiale e Peperoni", grammatura: "150g + 150g", descrizione: "Bistecca di maiale con peperoni arrostiti. Servire con 60g pane integrale. Condire con 20g olio EVO." }
+                },
+                dom: {
+                    colazione: { nome: "Uova al tegamino", grammatura: "120g", descrizione: "Due uova al tegamino con un frutto (150g)." },
+                    merenda: { nome: "Pera e Mandorle", grammatura: "150g + 30g", descrizione: "Pera e mandorle." },
+                    pranzo: { nome: "Piatto libero", grammatura: "A piacere", descrizione: "Pasto libero per concludere il mese." },
+                    cena: { nome: "Passato di verdure con legumi", grammatura: "Piatto abbondante", descrizione: "Passato di carote, sedano, cipolla, zucchine con aggiunta di ceci (80g). Servire con 60g pane integrale." }
+                }
+            }
+        };
+
+        const mealTypes = {
+            colazione: "Colazione",
+            merenda: "Spuntino",
+            pranzo: "Pranzo",
+            cena: "Cena"
+        };
+        
+        const dayNames = {
+            lun: 'Lunedì', mar: 'Martedì', mer: 'Mercoledì', gio: 'Giovedì', ven: 'Venerdì', sab: 'Sabato', dom: 'Domenica'
+        };
+
+        const dayKeys = ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom'];
+
+        let activeWeek = 'settimana1';
+        let activeDayKey = 'lun';
+
+        const weekNav = document.getElementById('week-nav');
+        const dayNav = document.getElementById('day-nav');
+        const container = document.getElementById('meal-plan-container');
+
+        // --- FUNZIONI ---
+        
+        function createMealCard(mealKey, mealData) {
+            return `
+                <div class="meal-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row mb-6 hover:shadow-xl hover:transform hover:-translate-y-1">
+                    <div class="md:w-1/3 bg-blue-600 text-white p-6 flex flex-col justify-center items-center">
+                        <h3 class="text-xl font-bold">${mealTypes[mealKey]}</h3>
+                    </div>
+                    <div class="p-6 md:w-2/3">
+                        <h4 class="font-bold text-lg text-gray-900">${mealData.nome}</h4>
+                        <p class="text-gray-500 font-medium mb-2">${mealData.grammatura}</p>
+                        <p class="text-gray-700">${mealData.descrizione}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayDayPlan(weekKey, dayKey) {
+            const dayData = mealPlan[weekKey]?.[dayKey];
+            activeWeek = weekKey;
+            activeDayKey = dayKey;
+
+            if (!dayData) {
+                container.innerHTML = '<p class="text-center text-red-500">Nessun dato disponibile per questo giorno.</p>';
+                return;
+            }
+
+            let content = `<h2 class="text-2xl font-bold text-center mb-6 text-blue-800">${dayNames[dayKey]} - ${weekKey.replace('settimana', 'Settimana ')}</h2>`;
+            content += Object.keys(mealTypes).map(mealKey => createMealCard(mealKey, dayData[mealKey])).join('');
+            container.innerHTML = content;
+            
+            updateActiveButtons();
+        }
+
+        function updateActiveButtons() {
+            // Update week buttons
+            document.querySelectorAll('#week-nav .nav-button').forEach(button => {
+                button.classList.toggle('active', button.dataset.week === activeWeek);
+            });
+            // Update day buttons
+            document.querySelectorAll('#day-nav .day-nav-button').forEach(button => {
+                button.classList.toggle('active', button.dataset.day === activeDayKey);
+            });
+        }
+        
+        function setupNavigation() {
+            // Week navigation
+            Object.keys(mealPlan).forEach((weekKey, index) => {
+                const button = document.createElement('button');
+                button.textContent = `Settimana ${index + 1}`;
+                button.dataset.week = weekKey;
+                button.className = 'nav-button px-4 py-2 rounded-lg text-sm sm:text-base font-medium text-gray-700 hover:bg-blue-100 transition-colors duration-200';
+                button.onclick = () => displayDayPlan(weekKey, activeDayKey);
+                weekNav.appendChild(button);
+            });
+            
+            // Day navigation
+            dayKeys.forEach(dayKey => {
+                const button = document.createElement('button');
+                button.textContent = dayNames[dayKey].substring(0,3);
+                button.dataset.day = dayKey;
+                button.className = 'day-nav-button px-3 py-2 text-sm sm:text-base border-2 border-gray-300 rounded-lg font-semibold text-gray-600 hover:bg-gray-200 transition-colors duration-200';
+                button.onclick = () => displayDayPlan(activeWeek, dayKey);
+                dayNav.appendChild(button);
+            });
+        }
+
+        // --- INIZIALIZZAZIONE ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Imposta il giorno corrente all'avvio
+            const todayIndex = (new Date().getDay() + 6) % 7; // 0=Lun, 1=Mar, ..., 6=Dom
+            const initialDayKey = dayKeys[todayIndex];
+            
+            setupNavigation();
+            displayDayPlan('settimana1', initialDayKey);
+        });
+
+    </script>
+
+</body>
+</html>
