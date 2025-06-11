@@ -11,12 +11,6 @@
         body {
             font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
-            padding-top: 60px;
-            /* Spazio per l'header fisso */
-        }
-
-        #sticky-header {
-            transition: opacity 0.3s ease;
         }
 
         .meal-card {
@@ -72,35 +66,33 @@
             color: #9CA3AF;
         }
 
-        /* Animazioni di Swipe */
-        #meal-plan-container {
-            transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
-            will-change: transform, opacity;
-        }
-
-        .slide-out-left {
-            transform: translateX(-100%);
+        #sticky-header {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            transform: translateY(-100%);
             opacity: 0;
         }
 
-        .slide-out-right {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-
-        .slide-in {
-            transform: translateX(0);
+        #sticky-header.visible {
+            transform: translateY(0);
             opacity: 1;
+        }
+
+        #header-text {
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+        }
+
+        #header-text.fade-slide-out {
+            transform: translateY(-100%);
+            opacity: 0;
         }
     </style>
 </head>
 
 <body class="bg-gray-50 text-gray-800">
 
-    <!-- Header Fisso -->
     <div id="sticky-header"
-        class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm shadow-md h-[60px] flex items-center justify-center px-4 z-20 hidden">
-        <h2 class="text-lg font-bold text-gray-800">
+        class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm shadow-md h-[60px] flex items-center justify-center px-4 z-20">
+        <h2 id="header-text" class="text-lg font-bold text-gray-800">
             <span id="sticky-week"></span> - <span id="sticky-day"></span>
         </h2>
     </div>
@@ -119,23 +111,19 @@
         </nav>
 
         <!-- Week Navigation -->
-        <nav id="week-nav" class="flex justify-center bg-white p-2 rounded-xl shadow-md mb-6 top-[70px] z-10">
-            <!-- I pulsanti delle settimane verranno inseriti qui dal JavaScript -->
+        <nav id="week-nav" class="flex justify-center bg-white p-2 rounded-xl shadow-md mb-6 sticky top-2 z-10">
         </nav>
 
         <!-- Container for Meal Plan View -->
-        <div id="plan-view-container" class="overflow-x-hidden">
+        <div id="plan-view-container">
             <nav id="day-nav" class="flex flex-wrap justify-center gap-2 mb-8">
-                <!-- I pulsanti dei giorni verranno inseriti qui dal JavaScript -->
             </nav>
             <main id="meal-plan-container">
-                <!-- Il contenuto del piano alimentare verrà caricato qui -->
             </main>
         </div>
 
         <!-- Container for Shopping List View -->
         <div id="list-view-container" class="hidden">
-            <!-- La lista della spesa verrà caricata qui -->
         </div>
 
         <footer class="text-center mt-12 text-sm text-gray-500">
@@ -146,263 +134,296 @@
     </div>
 
     <script>
-        // --- DATABASE DEL PIANO ALIMENTARE ---
         const mealPlan = {
-            week1: {
+            settimana1: {
                 lun: {
                     colazione: { nome: "Yogurt greco intero e Muesli con Banana", grammatura: "125g + 30g + 150g", descrizione: "Yogurt greco con muesli e una banana a fette." },
-                    merenda: { nome: "Kiwi e Mandorle", grammatura: "150g + 30g", descrizione: "Due kiwi freschi accompagnati da mandorle secche." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
-                    pranzo: { nome: "Pasta Senatore Cappelli con Ceci e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Pasta condita con ceci e zucchine saltate. Condire con 20g di olio EVO e 5g di olio di lino." },
-                    cena: { nome: "Petto di tacchino, Bieta e Mirtilli", grammatura: "150g + 100g + 125g", descrizione: "Tacchino al forno con bieta lessa. Concludere con mirtilli freschi." }
+                    spuntino_mattutino: { nome: "Kiwi e Mandorle", grammatura: "150g + 30g", descrizione: "Due kiwi freschi accompagnati da mandorle secche." },
+                    pranzo: { nome: "Pasta Senatore Cappelli con Ceci e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Pasta condita con ceci e zucchine saltate." },
+                    spuntino_pomeridiano: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Spuntino pomeridiano a base di fiocchi di latte." },
+                    cena: { nome: "Petto di tacchino, Bieta e Mirtilli", grammatura: "150g + 100g + 125g", descrizione: "Tacchino al forno con bieta lessa e mirtilli." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 mar: {
-                    colazione: { nome: "Pane secco, burro, marmellata e Kiwi", grammatura: "90g + 150g", descrizione: "Pane secco con burro di centrifuga, marmellata biologica e due kiwi." },
-                    merenda: { nome: "Banana e Noci", grammatura: "150g + 30g", descrizione: "Una banana fresca e noci secche." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
-                    pranzo: { nome: "Riso basmati con Lenticchie e Carote", grammatura: "80g + 60g + 100g", descrizione: "Riso basmati con lenticchie e carote. Condire con 20g olio EVO e 5g olio di lino." },
-                    cena: { nome: "Sgombro, Spinaci e Banana", grammatura: "150g + 100g + 150g", descrizione: "Sgombro al naturale con spinaci al vapore. Concludere con una banana." }
+                    colazione: { nome: "Pane secco, burro, marmellata e Kiwi", grammatura: "90g + 150g", descrizione: "Pane secco con burro, marmellata e due kiwi." },
+                    spuntino_mattutino: { nome: "Banana e Noci", grammatura: "150g + 30g", descrizione: "Una banana fresca e noci secche." },
+                    pranzo: { nome: "Riso basmati con Lenticchie e Carote", grammatura: "80g + 60g + 100g", descrizione: "Riso basmati con lenticchie e carote." },
+                    spuntino_pomeridiano: { nome: "Equilibrio Fortificato", grammatura: "200g", descrizione: "Spuntino con yogurt fortificato." },
+                    cena: { nome: "Sgombro, Spinaci e Banana", grammatura: "150g + 100g + 150g", descrizione: "Sgombro al naturale con spinaci e una banana." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 mer: {
-                    colazione: { nome: "Ricotta di vacca, Muesli e Mirtilli", grammatura: "80g + 30g + 125g", descrizione: "Ricotta fresca con muesli e mirtilli freschi." },
-                    merenda: { nome: "Banana e Anacardi", grammatura: "150g + 30g", descrizione: "Una banana e anacardi tostati." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
-                    pranzo: { nome: "Farro con Piselli e Pomodori", grammatura: "80g + 60g + 200g", descrizione: "Insalata di farro con piselli freschi e pomodori. Condire con 20g olio EVO." },
-                    cena: { nome: "Salmone fresco, Broccoletti e Kiwi", grammatura: "150g + 200g + 150g", descrizione: "Trancio di salmone al vapore con broccoletti. Concludere con due kiwi." }
+                    colazione: { nome: "Ricotta di vacca, Muesli e Mirtilli", grammatura: "80g + 30g + 125g", descrizione: "Ricotta fresca con muesli e mirtilli." },
+                    spuntino_mattutino: { nome: "Banana e Anacardi", grammatura: "150g + 30g", descrizione: "Una banana e anacardi tostati." },
+                    pranzo: { nome: "Farro con Piselli e Pomodori", grammatura: "80g + 60g + 200g", descrizione: "Insalata di farro con piselli e pomodori." },
+                    spuntino_pomeridiano: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Spuntino pomeridiano a base di fiocchi di latte." },
+                    cena: { nome: "Salmone fresco, Broccoletti e Kiwi", grammatura: "150g + 200g + 150g", descrizione: "Salmone al vapore con broccoletti e due kiwi." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 gio: {
-                    colazione: { nome: "Latte di capra, Muesli e Banana", grammatura: "200g + 30g + 150g", descrizione: "Tazza di latte di capra con muesli senza zuccheri aggiunti e una banana." },
-                    merenda: { nome: "Mirtilli e Nocciole", grammatura: "125g + 30g", descrizione: "Coppetta di mirtilli freschi e nocciole secche." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
-                    pranzo: { nome: "Grano saraceno con Fagioli e Zucca gialla", grammatura: "80g + 60g + 200g", descrizione: "Insalata di grano saraceno con fagioli e zucca. Condire con 20g olio EVO." },
-                    cena: { nome: "Vitellone, Asparagi e Mirtilli", grammatura: "150g + 100g + 125g", descrizione: "Bistecca di vitellone con asparagi al vapore. Concludere con mirtilli." }
+                    colazione: { nome: "Latte di capra, Muesli e Banana", grammatura: "200g + 30g + 150g", descrizione: "Latte di capra con muesli e banana." },
+                    spuntino_mattutino: { nome: "Mirtilli e Nocciole", grammatura: "125g + 30g", descrizione: "Mirtilli freschi e nocciole secche." },
+                    pranzo: { nome: "Grano saraceno con Fagioli e Zucca gialla", grammatura: "80g + 60g + 200g", descrizione: "Insalata di grano saraceno con fagioli e zucca." },
+                    spuntino_pomeridiano: { nome: "Equilibrio Fortificato", grammatura: "200g", descrizione: "Spuntino con yogurt fortificato." },
+                    cena: { nome: "Vitellone, Asparagi e Mirtilli", grammatura: "150g + 100g + 125g", descrizione: "Bistecca di vitellone con asparagi e mirtilli." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 ven: {
                     colazione: { nome: "Pane secco, burro, marmellata e Banana", grammatura: "90g + 150g", descrizione: "Pane secco con burro, marmellata e una banana." },
-                    merenda: { nome: "Mirtilli e Mandorle", grammatura: "125g + 30g", descrizione: "Una coppetta di mirtilli freschi e mandorle." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
-                    pranzo: { nome: "Riso nero Venere con Sgombro e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Riso Venere con sgombro al naturale e zucchine grigliate. Condire con 20g olio EVO." },
-                    cena: { nome: "Orata al forno, Peperoni e Kiwi", grammatura: "150g + 150g + 150g", descrizione: "Orata al cartoccio con peperoni arrostiti. Concludere con due kiwi." }
+                    spuntino_mattutino: { nome: "Mirtilli e Mandorle", grammatura: "125g + 30g", descrizione: "Mirtilli freschi e mandorle." },
+                    pranzo: { nome: "Riso nero Venere con Sgombro e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Riso Venere con sgombro e zucchine." },
+                    spuntino_pomeridiano: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Spuntino pomeridiano a base di fiocchi di latte." },
+                    cena: { nome: "Orata al forno, Peperoni e Kiwi", grammatura: "150g + 150g + 150g", descrizione: "Orata al cartoccio con peperoni e due kiwi." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 sab: {
                     colazione: { nome: "Ricotta di pecora, Muesli e Kiwi", grammatura: "80g + 30g + 150g", descrizione: "Ricotta fresca con muesli e due kiwi." },
-                    merenda: { nome: "Fiocchi di latte e Semi di girasole", grammatura: "85g + 20g", descrizione: "Fiocchi di latte con semi di girasole." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
-                    pranzo: { nome: "Grano saraceno con Funghi", grammatura: "80g + 150g", descrizione: "Grano saraceno con funghi prataioli trifolati. Condire con 20g olio EVO." },
-                    cena: { nome: "Bistecca di maiale, Lattuga, Banana", grammatura: "150g + 100g + 150g", descrizione: "Bistecca di maiale alla griglia con lattuga. Concludere con una banana." }
+                    spuntino_mattutino: { nome: "Banana e Semi di girasole", grammatura: "150g + 20g", descrizione: "Banana con semi di girasole." },
+                    pranzo: { nome: "Grano saraceno con Funghi", grammatura: "80g + 150g", descrizione: "Grano saraceno con funghi trifolati." },
+                    spuntino_pomeridiano: { nome: "Equilibrio Fortificato", grammatura: "200g", descrizione: "Spuntino con yogurt fortificato." },
+                    cena: { nome: "Bistecca di maiale, Lattuga, Banana", grammatura: "150g + 100g + 150g", descrizione: "Bistecca di maiale con lattuga e una banana." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 dom: {
                     colazione: { nome: "Latte di pecora, Muesli e Banana", grammatura: "200g + 30g + 150g", descrizione: "Latte di pecora con muesli e una banana." },
-                    merenda: { nome: "Banana e Noci", grammatura: "150g + 30g", descrizione: "Una banana non troppo matura e noci secche." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
-                    pranzo: { nome: "Pasta Senatore Cappelli con Vongole e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Pasta con vongole al naturale e zucchine a cubetti. Condire con 20g olio EVO." },
-                    cena: { nome: "Trota al forno, Fagiolini e Kiwi", grammatura: "150g + 100g + 150g", descrizione: "Trota al forno con fagiolini al vapore. Concludere con due kiwi." }
+                    spuntino_mattutino: { nome: "Banana e Noci", grammatura: "150g + 30g", descrizione: "Una banana e noci secche." },
+                    pranzo: { nome: "Pasta Senatore Cappelli con Vongole e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Pasta con vongole e zucchine." },
+                    spuntino_pomeridiano: { nome: "Equilibrio Fortificato", grammatura: "200g", descrizione: "Spuntino con yogurt fortificato." },
+                    cena: { nome: "Trota al forno, Fagiolini e Kiwi", grammatura: "150g + 100g + 150g", descrizione: "Trota al forno con fagiolini e due kiwi." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 }
             },
-            week2: {
+            settimana2: {
                 lun: {
                     colazione: { nome: "Yogurt greco e Muesli con Kiwi", grammatura: "125g + 30g + 150g", descrizione: "Yogurt greco con muesli e due kiwi." },
-                    merenda: { nome: "Banana e Nocciole", grammatura: "150g + 30g", descrizione: "Una banana fresca accompagnata da nocciole secche." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
-                    pranzo: { nome: "Grano saraceno con Ceci e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Grano saraceno con ceci e zucchine al vapore. Condire con 20g olio EVO e 5g olio di lino." },
-                    cena: { nome: "Polpo con patate e prezzemolo, Mirtilli", grammatura: "200g + 200g + 125g", descrizione: "Polpo bollito con patate lesse, condito con prezzemolo e olio. Concludere con mirtilli." }
+                    spuntino_mattutino: { nome: "Banana e Nocciole", grammatura: "150g + 30g", descrizione: "Una banana fresca accompagnata da nocciole secche." },
+                    pranzo: { nome: "Grano saraceno con Ceci e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Grano saraceno con ceci e zucchine al vapore." },
+                    spuntino_pomeridiano: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Spuntino pomeridiano a base di fiocchi di latte." },
+                    cena: { nome: "Polpo con patate e prezzemolo, Mirtilli", grammatura: "200g + 200g + 125g", descrizione: "Polpo bollito con patate lesse e mirtilli." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 mar: {
                     colazione: { nome: "Ricotta di vacca con Mirtilli", grammatura: "80g + 125g", descrizione: "Ricotta fresca servita con mirtilli freschi." },
-                    merenda: { nome: "Banana e Mandorle", grammatura: "150g + 30g", descrizione: "Una banana fresca e mandorle." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
-                    pranzo: { nome: "Riso basmati con Lenticchie e Zucca", grammatura: "80g + 60g + 200g", descrizione: "Riso basmati con lenticchie e cubetti di zucca gialla. Condire con 20g olio EVO." },
-                    cena: { nome: "Fegato di bovino, Agretti e Kiwi", grammatura: "150g + 100g + 150g", descrizione: "Fegato saltato in padella con contorno di agretti. Concludere con due kiwi." }
+                    spuntino_mattutino: { nome: "Banana e Mandorle", grammatura: "150g + 30g", descrizione: "Una banana fresca e mandorle." },
+                    pranzo: { nome: "Riso basmati con Lenticchie e Zucca", grammatura: "80g + 60g + 200g", descrizione: "Riso basmati con lenticchie e cubetti di zucca gialla." },
+                    spuntino_pomeridiano: { nome: "Equilibrio Fortificato", grammatura: "200g", descrizione: "Spuntino con yogurt fortificato." },
+                    cena: { nome: "Fegato di bovino, Agretti e Kiwi", grammatura: "150g + 100g + 150g", descrizione: "Fegato saltato in padella con agretti e due kiwi." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 mer: {
                     colazione: { nome: "Ricotta di pecora, Muesli e Banana", grammatura: "80g + 30g + 150g", descrizione: "Ricotta di pecora con muesli e una banana." },
-                    merenda: { nome: "Kiwi e Mandorle", grammatura: "150g + 30g", descrizione: "Due kiwi e mandorle secche." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
-                    pranzo: { nome: "Penne Senatore Cappelli con Tonno e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Penne con tonno al naturale e zucchine. Condire con 20g olio EVO." },
-                    cena: { nome: "Pesce spada, Insalata di pomodori, Banana", grammatura: "150g + 200g + 150g", descrizione: "Pesce spada alla griglia con insalata di pomodori. Concludere con una banana." }
+                    spuntino_mattutino: { nome: "Kiwi e Mandorle", grammatura: "150g + 30g", descrizione: "Due kiwi e mandorle secche." },
+                    pranzo: { nome: "Penne Senatore Cappelli con Tonno e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Penne con tonno al naturale e zucchine." },
+                    spuntino_pomeridiano: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Spuntino pomeridiano a base di fiocchi di latte." },
+                    cena: { nome: "Pesce spada, Insalata di pomodori, Banana", grammatura: "150g + 200g + 150g", descrizione: "Pesce spada alla griglia con pomodori e una banana." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 gio: {
-                    colazione: { nome: "Pane secco, burro, marmellata e Kiwi", grammatura: "90g + 150g", descrizione: "Pane secco con burro di centrifuga, marmellata e due kiwi." },
-                    merenda: { nome: "Mirtilli e Semi di zucca", grammatura: "125g + 20g", descrizione: "Una coppetta di mirtilli e semi di zucca." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
-                    pranzo: { nome: "Farro con Piselli e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Farro con piselli e zucchine saltate. Condire con 20g olio EVO e 5g di olio di lino." },
-                    cena: { nome: "Sgombro al forno, Peperoni e Mirtilli", grammatura: "150g + 150g + 125g", descrizione: "Sgombro al forno con peperoni grigliati. Concludere con mirtilli." }
+                    colazione: { nome: "Pane secco, burro, marmellata e Kiwi", grammatura: "90g + 150g", descrizione: "Pane secco con burro, marmellata e due kiwi." },
+                    spuntino_mattutino: { nome: "Mirtilli e Semi di zucca", grammatura: "125g + 20g", descrizione: "Una coppetta di mirtilli e semi di zucca." },
+                    pranzo: { nome: "Farro con Piselli e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Farro con piselli e zucchine saltate." },
+                    spuntino_pomeridiano: { nome: "Equilibrio Fortificato", grammatura: "200g", descrizione: "Spuntino con yogurt fortificato." },
+                    cena: { nome: "Sgombro al forno, Peperoni e Mirtilli", grammatura: "150g + 150g + 125g", descrizione: "Sgombro al forno con peperoni grigliati e mirtilli." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 ven: {
                     colazione: { nome: "Latte di vacca, Muesli e Banana", grammatura: "200g + 30g + 150g", descrizione: "Latte scremato con muesli e una banana." },
-                    merenda: { nome: "Banana e Noci", grammatura: "150g + 30g", descrizione: "Una banana fresca e noci." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
-                    pranzo: { nome: "Riso basmati con Cozze e Fagiolini", grammatura: "80g + 60g + 100g", descrizione: "Riso con cozze e fagiolini. Condire con 20g olio EVO." },
-                    cena: { nome: "Tonno fresco, Asparagi e Kiwi", grammatura: "150g + 100g + 150g", descrizione: "Trancio di tonno fresco con asparagi. Concludere con due kiwi." }
+                    spuntino_mattutino: { nome: "Banana e Noci", grammatura: "150g + 30g", descrizione: "Una banana fresca e noci." },
+                    pranzo: { nome: "Riso basmati con Cozze e Fagiolini", grammatura: "80g + 60g + 100g", descrizione: "Riso con cozze e fagiolini." },
+                    spuntino_pomeridiano: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Spuntino pomeridiano a base di fiocchi di latte." },
+                    cena: { nome: "Tonno fresco, Asparagi e Kiwi", grammatura: "150g + 100g + 150g", descrizione: "Trancio di tonno fresco con asparagi e due kiwi." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 sab: {
                     colazione: { nome: "Pane secco, burro, marmellata e Mirtilli", grammatura: "90g + 125g", descrizione: "Pane secco con burro, marmellata e mirtilli." },
                     merenda: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Una porzione di fiocchi di latte freschi." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
-                    pranzo: { nome: "Pasta Senatore Cappelli con Fagioli e Carote", grammatura: "80g + 60g + 100g", descrizione: "Pasta e fagioli con carote. Condire con 20g olio EVO e 5g di olio di lino." },
-                    cena: { nome: "Vitellone, Funghi e Banana", grammatura: "150g + 150g + 150g", descrizione: "Bistecca di vitellone ai ferri con funghi trifolati. Concludere con una banana." }
+                    pranzo: { nome: "Pasta Senatore Cappelli con Fagioli e Carote", grammatura: "80g + 60g + 100g", descrizione: "Pasta e fagioli con carote." },
+                    spuntino_pomeridiano: { nome: "Equilibrio Fortificato", grammatura: "200g", descrizione: "Spuntino con yogurt fortificato." },
+                    cena: { nome: "Vitellone, Funghi e Banana", grammatura: "150g + 150g + 150g", descrizione: "Bistecca di vitellone ai ferri con funghi e una banana." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 dom: {
                     colazione: { nome: "Ricotta di vacca con Kiwi", grammatura: "80g + 150g", descrizione: "Ricotta fresca accompagnata da due kiwi." },
-                    merenda: { nome: "Banana e Mandorle", grammatura: "150g + 30g", descrizione: "Una banana e mandorle." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
-                    pranzo: { nome: "Piatto libero", grammatura: "Porzione media", descrizione: "Goditi un pasto libero, ad esempio Riso Venere ai frutti di mare." },
-                    cena: { nome: "Minestra di verdure e legumi, Mirtilli", grammatura: "Piatto abbondante + 125g", descrizione: "Passato di verdure (zucca, carote, zucchine) con lenticchie (80g). Concludere con mirtilli." }
+                    spuntino_mattutino: { nome: "Banana e Mandorle", grammatura: "150g + 30g", descrizione: "Una banana e mandorle." },
+                    pranzo: { nome: "Piatto libero", grammatura: "Porzione media", descrizione: "Goditi un pasto libero." },
+                    spuntino_pomeridiano: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Spuntino pomeridiano a base di fiocchi di latte." },
+                    cena: { nome: "Minestra di verdure e legumi, Mirtilli", grammatura: "Piatto abbondante + 125g", descrizione: "Passato di verdure con lenticchie e mirtilli." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 }
             },
-            week3: {
+            settimana3: {
                 lun: {
                     colazione: { nome: "Yogurt greco, Muesli e Kiwi", grammatura: "125g + 30g + 150g", descrizione: "Yogurt greco con muesli e kiwi a fette." },
-                    merenda: { nome: "Banana e Anacardi", grammatura: "150g + 30g", descrizione: "Fette di banana e anacardi." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
+                    spuntino_mattutino: { nome: "Banana e Anacardi", grammatura: "150g + 30g", descrizione: "Fette di banana e anacardi." },
                     pranzo: { nome: "Pasta Senatore Cappelli con Ceci e Broccoletti", grammatura: "80g + 60g + 60g", descrizione: "Pasta con ceci e broccoletti di rapa saltati." },
-                    cena: { nome: "Petto di pollo, Carote e Banana", grammatura: "150g + 100g + 150g", descrizione: "Pollo grigliato con carote julienne. Concludere con una banana." }
+                    spuntino_pomeridiano: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Spuntino pomeridiano a base di fiocchi di latte." },
+                    cena: { nome: "Petto di pollo, Carote e Banana", grammatura: "150g + 100g + 150g", descrizione: "Pollo grigliato con carote julienne e una banana." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 mar: {
                     colazione: { nome: "Pane secco, burro, marmellata e Banana", grammatura: "90g + 150g", descrizione: "Pane secco con burro, marmellata e una banana." },
-                    merenda: { nome: "Kiwi e Noci", grammatura: "150g + 30g", descrizione: "Due kiwi e noci secche." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
+                    spuntino_mattutino: { nome: "Kiwi e Noci", grammatura: "150g + 30g", descrizione: "Due kiwi e noci secche." },
                     pranzo: { nome: "Riso nero Venere con Lenticchie e Peperoni", grammatura: "80g + 60g + 150g", descrizione: "Riso venere con lenticchie e peperoni arrostiti." },
-                    cena: { nome: "Salmone, Fagiolini e Kiwi", grammatura: "150g + 100g + 150g", descrizione: "Salmone al vapore con fagiolini. Concludere con due kiwi." }
+                    spuntino_pomeridiano: { nome: "Equilibrio Fortificato", grammatura: "200g", descrizione: "Spuntino con yogurt fortificato." },
+                    cena: { nome: "Salmone, Fagiolini e Kiwi", grammatura: "150g + 100g + 150g", descrizione: "Salmone al vapore con fagiolini e due kiwi." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 mer: {
                     colazione: { nome: "Ricotta di vacca, Muesli e Mirtilli", grammatura: "80g + 30g + 125g", descrizione: "Ricotta fresca con muesli e mirtilli." },
-                    merenda: { nome: "Banana e Mandorle", grammatura: "150g + 30g", descrizione: "Una banana e mandorle." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
+                    spuntino_mattutino: { nome: "Banana e Mandorle", grammatura: "150g + 30g", descrizione: "Una banana e mandorle." },
                     pranzo: { nome: "Farro con Sgombro e Pomodorini", grammatura: "80g + 60g + 200g", descrizione: "Insalata di farro con sgombro e pomodorini." },
-                    cena: { nome: "Pesce spada, Zucchine e Banana", grammatura: "150g + 200g + 150g", descrizione: "Trancio di pesce spada con zucchine grigliate. Concludere con una banana." }
+                    spuntino_pomeridiano: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Spuntino pomeridiano a base di fiocchi di latte." },
+                    cena: { nome: "Pesce spada, Zucchine e Banana", grammatura: "150g + 200g + 150g", descrizione: "Trancio di pesce spada con zucchine grigliate e una banana." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 gio: {
                     colazione: { nome: "Latte di pecora, Muesli e Banana", grammatura: "200g + 30g + 150g", descrizione: "Tazza di latte di pecora con muesli e banana." },
-                    merenda: { nome: "Kiwi e Nocciole", grammatura: "150g + 30g", descrizione: "Due kiwi e nocciole." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
+                    spuntino_mattutino: { nome: "Kiwi e Nocciole", grammatura: "150g + 30g", descrizione: "Due kiwi e nocciole." },
                     pranzo: { nome: "Farro con Fagioli e Zucca", grammatura: "80g + 60g + 200g", descrizione: "Insalata di farro con fagioli e zucca al forno." },
-                    cena: { nome: "Tacchino, Spinaci e Mirtilli", grammatura: "150g + 100g + 125g", descrizione: "Fesa di tacchino con spinaci freschi. Concludere con mirtilli." }
+                    spuntino_pomeridiano: { nome: "Equilibrio Fortificato", grammatura: "200g", descrizione: "Spuntino con yogurt fortificato." },
+                    cena: { nome: "Tacchino, Spinaci e Mirtilli", grammatura: "150g + 100g + 125g", descrizione: "Fesa di tacchino con spinaci freschi e mirtilli." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 ven: {
                     colazione: { nome: "Pane secco, burro, marmellata e Kiwi", grammatura: "90g + 150g", descrizione: "Pane secco con burro, marmellata e kiwi." },
-                    merenda: { nome: "Mirtilli e Semi di girasole", grammatura: "125g + 20g", descrizione: "Coppetta di mirtilli e semi di girasole." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
+                    spuntino_mattutino: { nome: "Mirtilli e Semi di girasole", grammatura: "125g + 20g", descrizione: "Coppetta di mirtilli e semi di girasole." },
                     pranzo: { nome: "Riso basmati con Vongole e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Riso con vongole al naturale e zucchine." },
-                    cena: { nome: "Sogliola al limone, Asparagi, Banana", grammatura: "150g + 100g + 150g", descrizione: "Filetti di sogliola con limone e asparagi. Concludere con una banana." }
+                    spuntino_pomeridiano: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Spuntino pomeridiano a base di fiocchi di latte." },
+                    cena: { nome: "Sogliola al limone, Asparagi, Banana", grammatura: "150g + 100g + 150g", descrizione: "Filetti di sogliola con limone, asparagi e una banana." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 sab: {
                     colazione: { nome: "Ricotta di vacca con Banana", grammatura: "80g + 150g", descrizione: "Ricotta fresca con una banana a fette." },
-                    merenda: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Una porzione di fiocchi di latte." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
+                    spuntino_mattutino: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Una porzione di fiocchi di latte." },
                     pranzo: { nome: "Grano saraceno con ragù di lenticchie", grammatura: "80g + 100g", descrizione: "Grano saraceno con ragù di lenticchie e verdure." },
-                    cena: { nome: "Triglie alla livornese, Kiwi", grammatura: "150g + 150g", descrizione: "Triglie con pomodoro. Concludere con due kiwi." }
+                    spuntino_pomeridiano: { nome: "Equilibrio Fortificato", grammatura: "200g", descrizione: "Spuntino con yogurt fortificato." },
+                    cena: { nome: "Triglie alla livornese, Kiwi", grammatura: "150g + 150g", descrizione: "Triglie con pomodoro e due kiwi." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 dom: {
                     colazione: { nome: "Latte di capra, Muesli e Mirtilli", grammatura: "200g + 30g + 125g", descrizione: "Latte di capra con muesli e mirtilli." },
-                    merenda: { nome: "Banana e Arachidi tostate", grammatura: "150g + 30g", descrizione: "Una banana e arachidi." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
-                    pranzo: { nome: "Piatto libero", grammatura: "A piacere", descrizione: "Goditi un pasto libero, magari una pizza con farina Senatore Cappelli." },
-                    cena: { nome: "Orata, Piselli e Banana", grammatura: "150g + 240g + 150g", descrizione: "Orata al forno con piselli freschi in umido. Concludere con una banana." }
+                    spuntino_mattutino: { nome: "Banana e Arachidi tostate", grammatura: "150g + 30g", descrizione: "Una banana e arachidi." },
+                    pranzo: { nome: "Piatto libero", grammatura: "A piacere", descrizione: "Goditi un pasto libero." },
+                    spuntino_pomeridiano: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Spuntino pomeridiano a base di fiocchi di latte." },
+                    cena: { nome: "Orata, Piselli e Banana", grammatura: "150g + 240g + 150g", descrizione: "Orata al forno con piselli e una banana." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 }
             },
-            week4: {
+            settimana4: {
                 lun: {
                     colazione: { nome: "Yogurt greco, Muesli e Banana", grammatura: "125g + 30g + 150g", descrizione: "Yogurt greco con muesli e banana." },
-                    merenda: { nome: "Kiwi e Noci", grammatura: "150g + 30g", descrizione: "Due kiwi e noci." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
+                    spuntino_mattutino: { nome: "Kiwi e Noci", grammatura: "150g + 30g", descrizione: "Due kiwi e noci." },
                     pranzo: { nome: "Grano saraceno con Ceci e Peperoni", grammatura: "80g + 60g + 150g", descrizione: "Grano saraceno con ceci e peperoni grigliati." },
-                    cena: { nome: "Salmone al vapore, Broccoletti e Kiwi", grammatura: "150g + 200g + 150g", descrizione: "Salmone cotto al vapore con broccoletti. Concludere con due kiwi." }
+                    spuntino_pomeridiano: { nome: "Equilibrio Fortificato", grammatura: "200g", descrizione: "Spuntino con yogurt fortificato." },
+                    cena: { nome: "Salmone al vapore, Broccoletti e Kiwi", grammatura: "150g + 200g + 150g", descrizione: "Salmone cotto al vapore con broccoletti e due kiwi." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 mar: {
                     colazione: { nome: "Ricotta di pecora con Mirtilli", grammatura: "80g + 125g", descrizione: "Ricotta di pecora fresca con mirtilli." },
-                    merenda: { nome: "Banana e Nocciole", grammatura: "150g + 30g", descrizione: "Una banana e nocciole." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
+                    spuntino_mattutino: { nome: "Banana e Nocciole", grammatura: "150g + 30g", descrizione: "Una banana e nocciole." },
                     pranzo: { nome: "Riso basmati con Lenticchie e Fagiolini", grammatura: "80g + 60g + 100g", descrizione: "Riso con lenticchie e fagiolini." },
-                    cena: { nome: "Fegato di bovino, Cipolle e Banana", grammatura: "150g + 100g + 150g", descrizione: "Fegato alla veneziana (con cipolle). Concludere con una banana." }
+                    spuntino_pomeridiano: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Spuntino pomeridiano a base di fiocchi di latte." },
+                    cena: { nome: "Fegato di bovino, Cipolle e Banana", grammatura: "150g + 100g + 150g", descrizione: "Fegato alla veneziana (con cipolle) e una banana." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 mer: {
                     colazione: { nome: "Ricotta di pecora, Muesli e Kiwi", grammatura: "80g + 30g + 150g", descrizione: "Ricotta di pecora con muesli e kiwi." },
-                    merenda: { nome: "Banana e Mandorle", grammatura: "150g + 30g", descrizione: "Banana e mandorle." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
+                    spuntino_mattutino: { nome: "Banana e Mandorle", grammatura: "150g + 30g", descrizione: "Banana e mandorle." },
                     pranzo: { nome: "Penne Senatore Cappelli con Tonno e Zucchine", grammatura: "80g + 60g + 200g", descrizione: "Pasta con tonno al naturale e zucchine." },
-                    cena: { nome: "Tacchino, Funghi e Mirtilli", grammatura: "150g + 150g + 125g", descrizione: "Fesa di tacchino con funghi trifolati. Concludere con mirtilli." }
+                    spuntino_pomeridiano: { nome: "Equilibrio Fortificato", grammatura: "200g", descrizione: "Spuntino con yogurt fortificato." },
+                    cena: { nome: "Tacchino, Funghi e Mirtilli", grammatura: "150g + 150g + 125g", descrizione: "Fesa di tacchino con funghi trifolati e mirtilli." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 gio: {
                     colazione: { nome: "Pane secco, burro, marmellata e Banana", grammatura: "90g + 150g", descrizione: "Pane secco con burro, marmellata e banana." },
-                    merenda: { nome: "Mirtilli e Semi di zucca", grammatura: "125g + 20g", descrizione: "Mirtilli e semi di zucca." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
+                    spuntino_mattutino: { nome: "Mirtilli e Semi di zucca", grammatura: "125g + 20g", descrizione: "Mirtilli e semi di zucca." },
                     pranzo: { nome: "Farro con Piselli e Zucca gialla", grammatura: "80g + 60g + 200g", descrizione: "Farro con piselli e zucca." },
-                    cena: { nome: "Sarda a beccafico, Lattuga e Kiwi", grammatura: "150g + 100g + 150g", descrizione: "Sarde a beccafico con lattuga. Concludere con due kiwi." }
+                    spuntino_pomeridiano: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Spuntino pomeridiano a base di fiocchi di latte." },
+                    cena: { nome: "Sarda a beccafico, Lattuga e Kiwi", grammatura: "150g + 100g + 150g", descrizione: "Sarde a beccafico con lattuga e due kiwi." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 ven: {
                     colazione: { nome: "Latte di vacca, Muesli e Kiwi", grammatura: "200g + 30g + 150g", descrizione: "Latte scremato con muesli e kiwi." },
-                    merenda: { nome: "Banana e Nocciole", grammatura: "150g + 30g", descrizione: "Banana e nocciole." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
+                    spuntino_mattutino: { nome: "Banana e Nocciole", grammatura: "150g + 30g", descrizione: "Banana e nocciole." },
                     pranzo: { nome: "Riso basmati con Cozze e Pomodorini", grammatura: "80g + 60g + 200g", descrizione: "Riso con cozze e pomodorini freschi." },
-                    cena: { nome: "Salmone, Agretti e Banana", grammatura: "150g + 100g + 150g", descrizione: "Salmone al vapore con agretti. Concludere con una banana." }
+                    spuntino_pomeridiano: { nome: "Equilibrio Fortificato", grammatura: "200g", descrizione: "Spuntino con yogurt fortificato." },
+                    cena: { nome: "Salmone, Agretti e Banana", grammatura: "150g + 100g + 150g", descrizione: "Salmone al vapore con agretti e una banana." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 sab: {
                     colazione: { nome: "Pane secco, burro, marmellata e Mirtilli", grammatura: "90g + 125g", descrizione: "Pane secco con burro, marmellata e mirtilli." },
-                    merenda: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Una porzione di fiocchi di latte." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
+                    spuntino_mattutino: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Una porzione di fiocchi di latte." },
                     pranzo: { nome: "Pasta Senatore Cappelli con Fagioli Borlotti", grammatura: "80g + 120g", descrizione: "Pasta e fagioli borlotti freschi." },
-                    cena: { nome: "Bistecca di maiale, Peperoni e Kiwi", grammatura: "150g + 150g + 150g", descrizione: "Bistecca di maiale con peperoni arrostiti. Concludere con due kiwi." }
+                    spuntino_pomeridiano: { nome: "Fiocchi di latte", grammatura: "85g", descrizione: "Spuntino pomeridiano a base di fiocchi di latte." },
+                    cena: { nome: "Bistecca di maiale, Peperoni e Kiwi", grammatura: "150g + 150g + 150g", descrizione: "Bistecca di maiale con peperoni arrostiti e due kiwi." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 },
                 dom: {
                     colazione: { nome: "Ricotta di pecora con Banana", grammatura: "80g + 150g", descrizione: "Ricotta fresca con una banana." },
-                    merenda: { nome: "Kiwi e Mandorle", grammatura: "150g + 30g", descrizione: "Kiwi e mandorle." },
-                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." },
+                    spuntino_mattutino: { nome: "Kiwi e Mandorle", grammatura: "150g + 30g", descrizione: "Kiwi e mandorle." },
                     pranzo: { nome: "Piatto libero", grammatura: "A piacere", descrizione: "Pasto libero per concludere il mese." },
-                    cena: { nome: "Passato di verdure con ceci, Mirtilli", grammatura: "Piatto abbondante + 125g", descrizione: "Passato di verdure miste con ceci (80g). Concludere con mirtilli." }
+                    spuntino_pomeridiano: { nome: "Equilibrio Fortificato", grammatura: "200g", descrizione: "Spuntino con yogurt fortificato." },
+                    cena: { nome: "Passato di verdure con ceci, Mirtilli", grammatura: "Piatto abbondante + 125g", descrizione: "Passato di verdure miste con ceci e mirtilli." },
+                    spuntino_extra: { nome: "Semi di zucca", grammatura: "20g", descrizione: "Spuntino extra durante la giornata." }
                 }
             }
         };
 
-        // --- SHOPPING LIST WITH CALCULATED QUANTITIES ---
         const shoppingLists = {
-            week1: {
+            settimana1: {
                 "Frutta": [{ name: "Banana", qty: 900, unit: "g" }, { name: "Kiwi", qty: 750, unit: "g" }, { name: "Mirtilli", qty: 500, unit: "g" }],
                 "Verdura": [{ name: "Zucchine", qty: 600, unit: "g" }, { name: "Bieta", qty: 100, unit: "g" }, { name: "Carote", qty: 100, unit: "g" }, { name: "Spinaci", qty: 100, unit: "g" }, { name: "Pomodori", qty: 200, unit: "g" }, { name: "Broccoletti", qty: 200, unit: "g" }, { name: "Zucca gialla", qty: 200, unit: "g" }, { name: "Asparagi", qty: 100, unit: "g" }, { name: "Peperoni", qty: 150, unit: "g" }, { name: "Funghi prataioli", qty: 150, unit: "g" }, { name: "Lattuga", qty: 100, unit: "g" }, { name: "Fagiolini", qty: 100, unit: "g" }],
                 "Carboidrati": [{ name: "Pasta Senatore Cappelli", qty: 160, unit: "g" }, { name: "Pane secco/integrale", qty: 180, unit: "g" }, { name: "Riso basmati", qty: 80, unit: "g" }, { name: "Farro", qty: 80, unit: "g" }, { name: "Grano saraceno", qty: 160, unit: "g" }, { name: "Riso nero Venere", qty: 80, unit: "g" }],
-                "Proteine": [{ name: "Ceci secchi", qty: 60, unit: "g" }, { name: "Petto di tacchino", qty: 150, unit: "g" }, { name: "Lenticchie secche", qty: 60, unit: "g" }, { name: "Sgombro", qty: 210, unit: "g" }, { name: "Piselli freschi", qty: 60, unit: "g" }, { name: "Salmone fresco", qty: 150, unit: "g" }, { name: "Fagioli secchi", qty: 60, unit: "g" }, { name: "Vitellone", qty: 150, unit: "g" }, { name: "Orata fresca", qty: 150, unit: "g" }, { name: "Bistecca di maiale", qty: 150, unit: "g" }, { name: "Vongole", qty: 60, unit: "g" }, { name: "Trota", qty: 150, unit: "g" }],
-                "Latticini e Alternative": [{ name: "Yogurt greco intero", qty: 125, unit: "g" }, { name: "Ricotta di vacca", qty: 80, unit: "g" }, { name: "Latte di capra", qty: 200, unit: "ml" }, { name: "Ricotta di pecora", qty: 80, unit: "g" }, { name: "Latte di pecora", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 85, unit: "g" }],
+                "Proteine": [{ name: "Ceci secchi", qty: 60, unit: "g" }, { name: "Petto di tacchino", qty: 150, unit: "g" }, { name: "Lenticchie secche", qty: 60, unit: "g" }, { name: "Sgombro", qty: 150, unit: "g" }, { name: "Piselli freschi", qty: 60, unit: "g" }, { name: "Salmone fresco", qty: 150, unit: "g" }, { name: "Fagioli secchi", qty: 60, unit: "g" }, { name: "Vitellone", qty: 150, unit: "g" }, { name: "Orata fresca", qty: 150, unit: "g" }, { name: "Bistecca di maiale", qty: 150, unit: "g" }, { name: "Vongole", qty: 60, unit: "g" }, { name: "Trota", qty: 150, unit: "g" }],
+                "Latticini e Alternative": [{ name: "Yogurt greco intero", qty: 125, unit: "g" }, { name: "Ricotta di vacca", qty: 80, unit: "g" }, { name: "Latte di capra", qty: 200, unit: "ml" }, { name: "Ricotta di pecora", qty: 80, unit: "g" }, { name: "Latte di pecora", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 255, unit: "g" }, { name: "Equilibrio Fortificato", qty: 800, unit: "g" }],
                 "Cereali e Altro": [{ name: "Muesli", qty: 150, unit: "g" }, { name: "Burro di centrifuga", qty: 1, unit: "conf" }, { name: "Marmellata biologica", qty: 1, unit: "conf" }],
                 "Frutta Secca e Semi": [{ name: "Mandorle", qty: 60, unit: "g" }, { name: "Noci", qty: 60, unit: "g" }, { name: "Anacardi", qty: 30, unit: "g" }, { name: "Nocciole", qty: 30, unit: "g" }, { name: "Semi di girasole", qty: 20, unit: "g" }, { name: "Semi di zucca", qty: 140, unit: "g" }]
             },
-            week2: {
+            settimana2: {
                 "Frutta": [{ name: "Kiwi", qty: 900, unit: "g" }, { name: "Banana", qty: 900, unit: "g" }, { name: "Mirtilli", qty: 750, unit: "g" }],
                 "Verdura": [{ name: "Zucchine", qty: 600, unit: "g" }, { name: "Patate", qty: 200, unit: "g" }, { name: "Zucca gialla", qty: 200, unit: "g" }, { name: "Agretti", qty: 100, unit: "g" }, { name: "Pomodori", qty: 200, unit: "g" }, { name: "Peperoni", qty: 150, unit: "g" }, { name: "Asparagi", qty: 100, unit: "g" }, { name: "Carote", qty: 100, unit: "g" }, { name: "Funghi", qty: 150, unit: "g" }, { name: "Fagiolini", qty: 100, unit: "g" }, { name: "Prezzemolo", qty: 1, unit: "mazzetto" }],
                 "Carboidrati": [{ name: "Grano saraceno", qty: 80, unit: "g" }, { name: "Pane secco/integrale", qty: 180, unit: "g" }, { name: "Riso basmati", qty: 160, unit: "g" }, { name: "Penne Senatore Cappelli", qty: 80, unit: "g" }, { name: "Farro", qty: 80, unit: "g" }, { name: "Pasta Senatore Cappelli", qty: 80, unit: "g" }],
                 "Proteine": [{ name: "Ceci secchi", qty: 60, unit: "g" }, { name: "Polpo", qty: 200, unit: "g" }, { name: "Lenticchie secche", qty: 140, unit: "g" }, { name: "Fegato di bovino", qty: 150, unit: "g" }, { name: "Tonno al naturale", qty: 60, unit: "g" }, { name: "Pesce spada", qty: 150, unit: "g" }, { name: "Piselli freschi", qty: 60, unit: "g" }, { name: "Sgombro", qty: 150, unit: "g" }, { name: "Cozze", qty: 60, unit: "g" }, { name: "Tonno fresco", qty: 150, unit: "g" }, { name: "Fagioli secchi", qty: 60, unit: "g" }, { name: "Vitellone", qty: 150, unit: "g" }],
-                "Latticini e Alternative": [{ name: "Yogurt greco", qty: 125, unit: "g" }, { name: "Ricotta di vacca", qty: 160, unit: "g" }, { name: "Ricotta di pecora", qty: 80, unit: "g" }, { name: "Latte di vacca", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 85, unit: "g" }],
+                "Latticini e Alternative": [{ name: "Yogurt greco", qty: 125, unit: "g" }, { name: "Ricotta di vacca", qty: 160, unit: "g" }, { name: "Ricotta di pecora", qty: 80, unit: "g" }, { name: "Latte di vacca", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 340, unit: "g" }, { name: "Equilibrio Fortificato", qty: 600, unit: "g" }],
                 "Cereali e Altro": [{ name: "Muesli", qty: 90, unit: "g" }, { name: "Burro di centrifuga", qty: 1, unit: "conf" }, { name: "Marmellata biologica", qty: 1, unit: "conf" }],
-                "Frutta Secca e Semi": [{ name: "Nocciole", qty: 30, unit: "g" }, { name: "Mandorle", qty: 60, unit: "g" }, { name: "Semi di zucca", qty: 160, unit: "g" }, { name: "Noci", qty: 30, unit: "g" }]
+                "Frutta Secca e Semi": [{ name: "Nocciole", qty: 30, unit: "g" }, { name: "Mandorle", qty: 60, unit: "g" }, { name: "Semi di zucca", qty: 140, unit: "g" }, { name: "Noci", qty: 30, unit: "g" }]
             },
-            week3: {
+            settimana3: {
                 "Frutta": [{ name: "Kiwi", qty: 750, unit: "g" }, { name: "Banana", qty: 1050, unit: "g" }, { name: "Mirtilli", qty: 375, unit: "g" }],
                 "Verdura": [{ name: "Broccoletti", qty: 60, unit: "g" }, { name: "Carote", qty: 100, unit: "g" }, { name: "Peperoni", qty: 150, unit: "g" }, { name: "Fagiolini", qty: 100, unit: "g" }, { name: "Pomodorini", qty: 200, unit: "g" }, { name: "Zucchine", qty: 400, unit: "g" }, { name: "Spinaci", qty: 100, unit: "g" }, { name: "Zucca gialla", qty: 200, unit: "g" }, { name: "Asparagi", qty: 100, unit: "g" }, { name: "Piselli freschi", qty: 240, unit: "g" }],
                 "Carboidrati": [{ name: "Pasta Senatore Cappelli", qty: 80, unit: "g" }, { name: "Pane secco/integrale", qty: 180, unit: "g" }, { name: "Riso nero Venere", qty: 80, unit: "g" }, { name: "Farro", qty: 160, unit: "g" }, { name: "Riso basmati", qty: 80, unit: "g" }, { name: "Grano saraceno", qty: 80, unit: "g" }],
                 "Proteine": [{ name: "Ceci secchi", qty: 60, unit: "g" }, { name: "Petto di pollo", qty: 150, unit: "g" }, { name: "Lenticchie secche", qty: 160, unit: "g" }, { name: "Salmone fresco", qty: 150, unit: "g" }, { name: "Sgombro", qty: 60, unit: "g" }, { name: "Pesce spada", qty: 150, unit: "g" }, { name: "Fesa di tacchino", qty: 150, unit: "g" }, { name: "Vongole", qty: 60, unit: "g" }, { name: "Sogliola", qty: 150, unit: "g" }, { name: "Triglie", qty: 150, unit: "g" }, { name: "Orata", qty: 150, unit: "g" }],
-                "Latticini e Alternative": [{ name: "Yogurt greco", qty: 125, unit: "g" }, { name: "Ricotta di vacca", qty: 160, unit: "g" }, { name: "Latte di pecora", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 85, unit: "g" }, { name: "Latte di capra", qty: 200, unit: "ml" }],
+                "Latticini e Alternative": [{ name: "Yogurt greco", qty: 125, unit: "g" }, { name: "Ricotta di vacca", qty: 160, unit: "g" }, { name: "Latte di pecora", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 340, unit: "g" }, { name: "Latte di capra", qty: 200, unit: "ml" }, { name: "Equilibrio Fortificato", qty: 600, unit: "g" }],
                 "Cereali e Altro": [{ name: "Muesli", qty: 120, unit: "g" }, { name: "Burro di centrifuga", qty: 1, unit: "conf" }, { name: "Marmellata biologica", qty: 1, unit: "conf" }],
                 "Frutta Secca e Semi": [{ name: "Anacardi", qty: 30, unit: "g" }, { name: "Noci", qty: 30, unit: "g" }, { name: "Mandorle", qty: 30, unit: "g" }, { name: "Nocciole", qty: 30, unit: "g" }, { name: "Semi di girasole", qty: 20, unit: "g" }, { name: "Arachidi tostate", qty: 30, unit: "g" }, { name: "Semi di zucca", qty: 140, unit: "g" }]
             },
-            week4: {
+            settimana4: {
                 "Frutta": [{ name: "Banana", qty: 900, unit: "g" }, { name: "Kiwi", qty: 900, unit: "g" }, { name: "Mirtilli", qty: 625, unit: "g" }],
                 "Verdura": [{ name: "Peperoni", qty: 300, unit: "g" }, { name: "Broccoletti", qty: 200, unit: "g" }, { name: "Cipolle", qty: 100, unit: "g" }, { name: "Fagiolini", qty: 100, unit: "g" }, { name: "Funghi", qty: 150, unit: "g" }, { name: "Lattuga", qty: 100, unit: "g" }, { name: "Agretti", qty: 100, unit: "g" }, { name: "Zucchine", qty: 200, unit: "g" }, { name: "Zucca gialla", qty: 200, unit: "g" }, { name: "Pomodorini", qty: 200, unit: "g" }],
                 "Carboidrati": [{ name: "Grano saraceno", qty: 80, unit: "g" }, { name: "Pane secco/integrale", qty: 180, unit: "g" }, { name: "Riso basmati", qty: 160, unit: "g" }, { name: "Penne Senatore Cappelli", qty: 80, unit: "g" }, { name: "Farro", qty: 80, unit: "g" }, { name: "Pasta Senatore Cappelli", qty: 80, unit: "g" }],
-                "Proteine": [{ name: "Ceci secchi", qty: 140, unit: "g" }, { name: "Salmone fresco", qty: 300, unit: "g" }, { name: "Lenticchie secche", qty: 60, unit: "g" }, { name: "Fegato di bovino", qty: 150, unit: "g" }, { name: "Tonno al naturale", qty: 60, unit: "g" }, { name: "Fesa di tacchino", qty: 150, unit: "g" }, { name: "Sarde", qty: 150, unit: "g" }, { name: "Cozze", qty: 60, unit: "g" }, { name: "Fagioli Borlotti freschi", qty: 120, unit: "g" }, { name: "Bistecca di maiale", qty: 150, unit: "g" }, { name: "Piselli freschi", qty: 60, unit: "g" }],
-                "Latticini e Alternative": [{ name: "Yogurt greco", qty: 125, unit: "g" }, { name: "Ricotta di pecora", qty: 240, unit: "g" }, { name: "Latte di vacca", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 85, unit: "g" }],
+                "Proteine": [{ name: "Ceci secchi", qty: 140, unit: "g" }, { name: "Salmone fresco", qty: 150, unit: "g" }, { name: "Lenticchie secche", qty: 60, unit: "g" }, { name: "Fegato di bovino", qty: 150, unit: "g" }, { name: "Tonno al naturale", qty: 60, unit: "g" }, { name: "Fesa di tacchino", qty: 150, unit: "g" }, { name: "Sarde", qty: 150, unit: "g" }, { name: "Cozze", qty: 60, unit: "g" }, { name: "Fagioli Borlotti freschi", qty: 120, unit: "g" }, { name: "Bistecca di maiale", qty: 150, unit: "g" }, { name: "Piselli freschi", qty: 60, unit: "g" }],
+                "Latticini e Alternative": [{ name: "Yogurt greco", qty: 125, unit: "g" }, { name: "Ricotta di pecora", qty: 240, unit: "g" }, { name: "Latte di vacca", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 340, unit: "g" }, { name: "Equilibrio Fortificato", qty: 600, unit: "g" }],
                 "Cereali e Altro": [{ name: "Muesli", qty: 90, unit: "g" }, { name: "Burro di centrifuga", qty: 1, unit: "conf" }, { name: "Marmellata biologica", qty: 1, unit: "conf" }],
-                "Frutta Secca e Semi": [{ name: "Noci", qty: 30, unit: "g" }, { name: "Nocciole", qty: 60, unit: "g" }, { name: "Mandorle", qty: 60, unit: "g" }, { name: "Semi di zucca", qty: 160, unit: "g" }]
+                "Frutta Secca e Semi": [{ name: "Noci", qty: 30, unit: "g" }, { name: "Nocciole", qty: 60, unit: "g" }, { name: "Mandorle", qty: 60, unit: "g" }, { name: "Semi di zucca", qty: 140, unit: "g" }]
             }
         };
 
         const mealTypes = {
-            colazione: "Colazione", merenda: "Spuntino", spuntino_extra: "Spuntino Extra", pranzo: "Pranzo", cena: "Cena"
+            colazione: "Colazione",
+            spuntino_mattutino: "Spuntino Mattutino",
+            pranzo: "Pranzo",
+            spuntino_pomeridiano: "Spuntino Pomeridiano",
+            cena: "Cena",
+            spuntino_extra: "Spuntino Extra"
         };
+        const mealOrder = ['colazione', 'spuntino_mattutino', 'pranzo', 'spuntino_pomeridiano', 'cena', 'spuntino_extra'];
+
         const dayNames = {
             lun: 'Lunedì', mar: 'Martedì', mer: 'Mercoledì', gio: 'Giovedì', ven: 'Venerdì', sab: 'Sabato', dom: 'Domenica'
         };
         const dayKeys = ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom'];
 
-        let activeWeek = 'week1';
+        let activeWeek = 'settimana1';
         let activeDayKey = 'lun';
         let currentView = 'plan';
 
@@ -410,13 +431,13 @@
         const dayNav = document.getElementById('day-nav');
         const mealContainer = document.getElementById('meal-plan-container');
         const shoppingListContainer = document.getElementById('list-view-container');
+        const planViewWrapper = document.getElementById('plan-view-wrapper');
 
         const planViewBtn = document.getElementById('plan-view-btn');
         const listViewBtn = document.getElementById('list-view-btn');
-        const planViewContainer = document.getElementById('plan-view-container');
 
         function createMealCard(mealKey, mealData) {
-            const bgColor = mealKey === 'spuntino_extra' ? 'bg-green-600' : 'bg-blue-600';
+            const bgColor = mealKey === 'spuntino_extra' ? 'bg-green-600' : (mealKey.includes('pomeridiano') ? 'bg-orange-500' : 'bg-blue-600');
             return `<div class="meal-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row mb-6 hover:shadow-xl hover:transform hover:-translate-y-1">
                         <div class="md:w-1/3 ${bgColor} text-white p-6 flex flex-col justify-center items-center">
                             <h3 class="text-xl font-bold">${mealTypes[mealKey]}</h3>
@@ -429,7 +450,7 @@
                     </div>`;
         }
 
-        function displayDayPlan(weekKey, dayKey, direction = 'in') {
+        function displayDayPlan(weekKey, dayKey) {
             const dayData = mealPlan[weekKey]?.[dayKey];
             activeWeek = weekKey;
             activeDayKey = dayKey;
@@ -439,26 +460,12 @@
                 return;
             }
 
-            let content = `<h2 class="text-2xl font-bold text-center mb-6 text-blue-800">${dayNames[dayKey]} - ${weekKey.replace('week', 'week ')}</h2>`;
-            content += Object.keys(mealTypes).map(mealKey => dayData[mealKey] ? createMealCard(mealKey, dayData[mealKey]) : '').join('');
+            let content = `<h2 class="text-2xl font-bold text-center mb-6 text-blue-800">${dayNames[dayKey]} - ${weekKey.replace('settimana', 'Settimana ')}</h2>`;
+            content += mealOrder.map(mealKey => dayData[mealKey] ? createMealCard(mealKey, dayData[mealKey]) : '').join('');
 
-            // Gestione animazione
-            if (direction === 'in') {
-                mealContainer.innerHTML = content;
-            } else {
-                const animationClass = direction === 'next' ? 'slide-out-left' : 'slide-out-right';
-                mealContainer.classList.add(animationClass);
-
-                mealContainer.addEventListener('transitionend', () => {
-                    mealContainer.innerHTML = content;
-                    mealContainer.classList.remove('slide-out-left', 'slide-out-right');
-                    mealContainer.classList.add('slide-in');
-                }, { once: true });
-                mealContainer.classList.remove('slide-in');
-            }
+            mealContainer.innerHTML = content;
 
             updateActiveButtons();
-            updateStickyHeader(weekKey, dayKey);
         }
 
         function displayShoppingList(weekKey) {
@@ -469,8 +476,7 @@
                 return;
             }
 
-            let content = `<h2 class="text-2xl font-bold text-center mb-8 text-blue-800">Lista della Spesa - ${weekKey.replace('week', 'week ')}</h2>`;
-
+            let content = `<h2 class="text-2xl font-bold text-center mb-8 text-blue-800">Lista della Spesa - ${weekKey.replace('settimana', 'Settimana ')}</h2>`;
             content += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">';
 
             for (const category in listData) {
@@ -493,41 +499,49 @@
             updateActiveButtons();
         }
 
-        function updateStickyHeader(weekKey, dayKey) {
+        function animateHeader(newWeekKey, newDayKey) {
+            const headerText = document.getElementById('header-text');
             const stickyWeek = document.getElementById('sticky-week');
             const stickyDay = document.getElementById('sticky-day');
-            if (stickyWeek && stickyDay) {
-                stickyWeek.textContent = weekKey.replace('week', 'week ');
-                stickyDay.textContent = dayNames[dayKey];
-            }
+
+            headerText.classList.add('fade-slide-out');
+
+            setTimeout(() => {
+                stickyWeek.textContent = newWeekKey.replace('settimana', 'Settimana ');
+                stickyDay.textContent = dayNames[newDayKey];
+                headerText.classList.remove('fade-slide-out');
+            }, 500);
         }
+
 
         function toggleView(view) {
             const stickyHeader = document.getElementById('sticky-header');
             currentView = view;
             if (view === 'plan') {
-                planViewContainer.classList.remove('hidden');
-                shoppingListContainer.classList.add('hidden');
+                document.getElementById('plan-view-container').classList.remove('hidden');
+                document.getElementById('list-view-container').classList.add('hidden');
                 planViewBtn.classList.add('active');
                 listViewBtn.classList.remove('active');
-                stickyHeader.classList.remove('hidden');
                 displayDayPlan(activeWeek, activeDayKey);
             } else {
-                planViewContainer.classList.add('hidden');
-                shoppingListContainer.classList.remove('hidden');
+                document.getElementById('plan-view-container').classList.add('hidden');
+                document.getElementById('list-view-container').classList.remove('hidden');
                 planViewBtn.classList.remove('active');
                 listViewBtn.classList.add('active');
-                stickyHeader.classList.add('hidden');
+                stickyHeader.classList.remove('visible');
                 displayShoppingList(activeWeek);
             }
         }
 
         function handleWeekChange(weekKey) {
-            activeWeek = weekKey;
-            if (currentView === 'plan') {
-                displayDayPlan(weekKey, activeDayKey);
-            } else {
-                displayShoppingList(weekKey);
+            if (activeWeek !== weekKey) {
+                animateHeader(weekKey, activeDayKey);
+                activeWeek = weekKey;
+                if (currentView === 'plan') {
+                    displayDayPlan(weekKey, activeDayKey);
+                } else {
+                    displayShoppingList(weekKey);
+                }
             }
         }
 
@@ -548,7 +562,7 @@
 
             Object.keys(mealPlan).forEach((weekKey, index) => {
                 const button = document.createElement('button');
-                button.textContent = `week ${index + 1}`;
+                button.textContent = `Settimana ${index + 1}`;
                 button.dataset.week = weekKey;
                 button.className = 'nav-button px-4 py-2 rounded-lg text-sm sm:text-base font-medium text-gray-700 hover:bg-blue-100 transition-colors duration-200';
                 button.onclick = () => handleWeekChange(weekKey);
@@ -561,43 +575,36 @@
                 button.dataset.day = dayKey;
                 button.className = 'day-nav-button px-3 py-2 text-sm sm:text-base border-2 border-gray-300 rounded-lg font-semibold text-gray-600 hover:bg-gray-200 transition-colors duration-200';
                 button.onclick = () => {
-                    displayDayPlan(activeWeek, dayKey);
+                    if (activeDayKey !== dayKey) {
+                        navigateDay('click', dayKey);
+                    }
                 };
                 dayNav.appendChild(button);
             });
         }
 
-        // --- SWIPE FUNCTIONALITY ---
         let touchstartX = 0;
         let touchendX = 0;
-        let isAnimating = false;
 
-        function navigateDay(direction) {
-            if (isAnimating) return;
-            isAnimating = true;
-
+        function navigateDay(method, newDayKey = null) {
             let currentIndex = dayKeys.indexOf(activeDayKey);
-            const nextIndex = direction === 'next'
-                ? (currentIndex + 1) % dayKeys.length
-                : (currentIndex - 1 + dayKeys.length) % dayKeys.length;
+            let nextIndex;
 
-            const animationClass = direction === 'next' ? 'slide-out-left' : 'slide-out-right';
+            if (newDayKey) {
+                nextIndex = dayKeys.indexOf(newDayKey);
+            } else {
+                nextIndex = method === 'next'
+                    ? (currentIndex + 1) % dayKeys.length
+                    : (currentIndex - 1 + dayKeys.length) % dayKeys.length;
+            }
 
-            mealContainer.classList.add(animationClass);
-            mealContainer.addEventListener('transitionend', function handler() {
-                mealContainer.removeEventListener('transitionend', handler);
+            const nextDayKey = dayKeys[nextIndex];
 
-                activeDayKey = dayKeys[nextIndex];
-                displayDayPlan(activeWeek, activeDayKey, 'no-animation');
-
-                mealContainer.classList.remove(animationClass);
-
-                // Allow new animation
-                setTimeout(() => {
-                    isAnimating = false;
-                }, 50);
-
-            }, { once: true });
+            if (activeDayKey !== nextDayKey) {
+                // Non c'è animazione del contenuto, solo dell'header
+                animateHeader(activeWeek, nextDayKey);
+                displayDayPlan(activeWeek, nextDayKey);
+            }
         }
 
         function handleGesture() {
@@ -611,26 +618,40 @@
             }
         }
 
-        planViewContainer.addEventListener('touchstart', e => {
+        document.body.addEventListener('touchstart', e => {
             touchstartX = e.changedTouches[0].screenX;
         }, { passive: true });
 
-        planViewContainer.addEventListener('touchend', e => {
+        document.body.addEventListener('touchend', e => {
             touchendX = e.changedTouches[0].screenX;
             handleGesture();
         });
 
+        const stickyHeader = document.getElementById('sticky-header');
+        const headerThreshold = 100;
 
-        // --- INITIALIZATION ---
+        window.addEventListener('scroll', () => {
+            if (currentView === 'plan') {
+                if (window.scrollY > headerThreshold) {
+                    stickyHeader.classList.add('visible');
+                } else {
+                    stickyHeader.classList.remove('visible');
+                }
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
             const todayIndex = (new Date().getDay() + 6) % 7;
             activeDayKey = dayKeys[todayIndex];
 
             setupNavigation();
             toggleView('plan');
+
+            document.getElementById('sticky-week').textContent = activeWeek.replace('settimana', 'Settimana ');
+            document.getElementById('sticky-day').textContent = dayNames[activeDayKey];
         });
 
     </script>
-
 </body>
-</ht
+
+</html>
