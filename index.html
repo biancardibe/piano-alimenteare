@@ -437,7 +437,7 @@
         const listViewBtn = document.getElementById('list-view-btn');
 
         function createMealCard(mealKey, mealData) {
-            const bgColor = mealKey === 'spuntino_extra' ? 'bg-green-600' : (mealKey.includes('pomeridiano') ? 'bg-orange-500' : 'bg-blue-600');
+            const bgColor = mealKey === 'spuntino_extra' ? 'bg-green-600' : 'bg-blue-600';
             return `<div class="meal-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row mb-6 hover:shadow-xl hover:transform hover:-translate-y-1">
                         <div class="md:w-1/3 ${bgColor} text-white p-6 flex flex-col justify-center items-center">
                             <h3 class="text-xl font-bold">${mealTypes[mealKey]}</h3>
