@@ -43,6 +43,12 @@
             text-decoration: line-through;
             color: #9CA3AF; /* text-gray-400 */
         }
+        .shopping-item label span {
+            transition: color 0.2s;
+        }
+        .shopping-item input[type="checkbox"]:checked + label span {
+             color: #9CA3AF; /* text-gray-400 */
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -298,46 +304,43 @@
             }
         };
         
+        // --- SHOPPING LIST WITH CALCULATED QUANTITIES ---
         const shoppingLists = {
             settimana1: {
-                "Frutta": ["Banana", "Kiwi", "Mandorle", "Noci", "Anacardi", "Nocciole", "Mirtilli"],
-                "Verdura": ["Zucchine", "Bieta", "Carote", "Spinaci", "Pomodori", "Broccoletti di rapa", "Asparagi", "Zucca gialla", "Peperoni", "Funghi prataioli", "Lattuga", "Fagiolini"],
-                "Carboidrati": ["Pasta di grano Senatore Cappelli", "Pane integrale", "Pane secco", "Riso basmati", "Farro", "Grano saraceno", "Riso nero Venere"],
-                "Proteine": ["Ceci secchi", "Lenticchie secche", "Petto di tacchino", "Sgombro al naturale", "Piselli freschi", "Salmone fresco", "Fagioli borlotti secchi", "Vitellone", "Orata fresca", "Bistecca di maiale", "Vongole in scatola", "Trota"],
-                "Latticini e Alternative": ["Yogurt greco intero", "Burro di centrifuga", "Ricotta di vacca", "Ricotta di pecora", "Latte di capra", "Latte di pecora", "Fiocchi di latte"],
-                "Cereali": ["Muesli"],
-                "Frutta Secca e Semi": ["Mandorle", "Noci", "Anacardi", "Nocciole", "Semi di girasole", "Semi di zucca"],
-                "Condimenti e Altro": ["Marmellata biologica", "Olio di oliva extra vergine", "Olio di semi di lino"]
+                "Frutta": [ { name: "Banana", qty: 900, unit: "g" }, { name: "Kiwi", qty: 750, unit: "g" }, { name: "Mirtilli", qty: 500, unit: "g" } ],
+                "Verdura": [ { name: "Zucchine", qty: 600, unit: "g" }, { name: "Bieta", qty: 100, unit: "g" }, { name: "Carote", qty: 100, unit: "g" }, { name: "Spinaci", qty: 100, unit: "g" }, { name: "Pomodori", qty: 200, unit: "g" }, { name: "Broccoletti", qty: 200, unit: "g" }, { name: "Zucca gialla", qty: 200, unit: "g" }, { name: "Asparagi", qty: 100, unit: "g" }, { name: "Peperoni", qty: 150, unit: "g" }, { name: "Funghi prataioli", qty: 150, unit: "g" }, { name: "Lattuga", qty: 100, unit: "g" }, { name: "Fagiolini", qty: 100, unit: "g" } ],
+                "Carboidrati": [ { name: "Pasta Senatore Cappelli", qty: 160, unit: "g" }, { name: "Pane secco/integrale", qty: 180, unit: "g" }, { name: "Riso basmati", qty: 80, unit: "g" }, { name: "Farro", qty: 80, unit: "g" }, { name: "Grano saraceno", qty: 160, unit: "g" }, { name: "Riso nero Venere", qty: 80, unit: "g" } ],
+                "Proteine": [ { name: "Ceci secchi", qty: 60, unit: "g" }, { name: "Petto di tacchino", qty: 150, unit: "g" }, { name: "Lenticchie secche", qty: 60, unit: "g" }, { name: "Sgombro", qty: 210, unit: "g" }, { name: "Piselli freschi", qty: 60, unit: "g" }, { name: "Salmone fresco", qty: 150, unit: "g" }, { name: "Fagioli secchi", qty: 60, unit: "g" }, { name: "Vitellone", qty: 150, unit: "g" }, { name: "Orata fresca", qty: 150, unit: "g" }, { name: "Bistecca di maiale", qty: 150, unit: "g" }, { name: "Vongole", qty: 60, unit: "g" }, { name: "Trota", qty: 150, unit: "g" } ],
+                "Latticini e Alternative": [ { name: "Yogurt greco intero", qty: 125, unit: "g" }, { name: "Ricotta di vacca", qty: 80, unit: "g" }, { name: "Latte di capra", qty: 200, unit: "ml" }, { name: "Ricotta di pecora", qty: 80, unit: "g" }, { name: "Latte di pecora", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 85, unit: "g" } ],
+                "Cereali e Altro": [ { name: "Muesli", qty: 150, unit: "g" }, { name: "Burro di centrifuga", qty: 1, unit: "conf" }, { name: "Marmellata biologica", qty: 1, unit: "conf" } ],
+                "Frutta Secca e Semi": [ { name: "Mandorle", qty: 60, unit: "g" }, { name: "Noci", qty: 60, unit: "g" }, { name: "Anacardi", qty: 30, unit: "g" }, { name: "Nocciole", qty: 30, unit: "g" }, { name: "Semi di girasole", qty: 20, unit: "g" }, { name: "Semi di zucca", qty: 140, unit: "g" } ]
             },
             settimana2: {
-                 "Frutta": ["Kiwi", "Banana", "Mirtilli", "Nocciole", "Mandorle", "Noci"],
-                "Verdura": ["Zucchine", "Patate", "Prezzemolo", "Zucca gialla", "Agretti", "Pomodori", "Peperoni", "Asparagi", "Carote", "Funghi", "Fagiolini"],
-                "Carboidrati": ["Grano saraceno", "Pane integrale", "Riso basmati", "Penne Senatore Cappelli", "Farro", "Pasta Senatore Cappelli"],
-                "Proteine": ["Ceci secchi", "Polpo", "Lenticchie secche", "Fegato di bovino", "Tonno al naturale", "Pesce spada", "Sgombro", "Cozze", "Tonno fresco", "Fagioli borlotti secchi", "Vitellone"],
-                "Latticini e Alternative": ["Yogurt greco intero", "Ricotta di vacca", "Ricotta di pecora", "Latte di vacca scremato", "Fiocchi di latte"],
-                "Cereali": ["Muesli"],
-                "Frutta Secca e Semi": ["Nocciole", "Mandorle", "Semi di zucca", "Noci"],
-                "Condimenti e Altro": ["Olio di oliva extra vergine", "Olio di semi di lino", "Burro di centrifuga", "Marmellata biologica"]
+                 "Frutta": [ { name: "Kiwi", qty: 900, unit: "g" }, { name: "Banana", qty: 900, unit: "g" }, { name: "Mirtilli", qty: 750, unit: "g" } ],
+                "Verdura": [ { name: "Zucchine", qty: 600, unit: "g" }, { name: "Patate", qty: 200, unit: "g" }, { name: "Zucca gialla", qty: 200, unit: "g" }, { name: "Agretti", qty: 100, unit: "g" }, { name: "Pomodori", qty: 200, unit: "g" }, { name: "Peperoni", qty: 150, unit: "g" }, { name: "Asparagi", qty: 100, unit: "g" }, { name: "Carote", qty: 100, unit: "g" }, { name: "Funghi", qty: 150, unit: "g" }, { name: "Fagiolini", qty: 100, unit: "g" }, { name: "Prezzemolo", qty: 1, unit: "mazzetto" } ],
+                "Carboidrati": [ { name: "Grano saraceno", qty: 80, unit: "g" }, { name: "Pane secco/integrale", qty: 180, unit: "g" }, { name: "Riso basmati", qty: 160, unit: "g" }, { name: "Penne Senatore Cappelli", qty: 80, unit: "g" }, { name: "Farro", qty: 80, unit: "g" }, { name: "Pasta Senatore Cappelli", qty: 80, unit: "g" } ],
+                "Proteine": [ { name: "Ceci secchi", qty: 60, unit: "g" }, { name: "Polpo", qty: 200, unit: "g" }, { name: "Lenticchie secche", qty: 140, unit: "g" }, { name: "Fegato di bovino", qty: 150, unit: "g" }, { name: "Tonno al naturale", qty: 60, unit: "g" }, { name: "Pesce spada", qty: 150, unit: "g" }, { name: "Piselli freschi", qty: 60, unit: "g" }, { name: "Sgombro", qty: 150, unit: "g" }, { name: "Cozze", qty: 60, unit: "g" }, { name: "Tonno fresco", qty: 150, unit: "g" }, { name: "Fagioli secchi", qty: 60, unit: "g" }, { name: "Vitellone", qty: 150, unit: "g" } ],
+                "Latticini e Alternative": [ { name: "Yogurt greco", qty: 125, unit: "g" }, { name: "Ricotta di vacca", qty: 160, unit: "g" }, { name: "Ricotta di pecora", qty: 80, unit: "g" }, { name: "Latte di vacca", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 85, unit: "g" } ],
+                "Cereali e Altro": [ { name: "Muesli", qty: 90, unit: "g" }, { name: "Burro di centrifuga", qty: 1, unit: "conf" }, { name: "Marmellata biologica", qty: 1, unit: "conf" } ],
+                "Frutta Secca e Semi": [ { name: "Nocciole", qty: 30, unit: "g" }, { name: "Mandorle", qty: 60, unit: "g" }, { name: "Semi di zucca", qty: 160, unit: "g" }, { name: "Noci", qty: 30, unit: "g" } ]
             },
-             settimana3: {
-                "Frutta": ["Kiwi", "Banana", "Anacardi", "Noci", "Mirtilli", "Mandorle", "Nocciole", "Arachidi tostate"],
-                "Verdura": ["Broccoletti di rapa", "Carote", "Peperoni", "Fagiolini", "Pomodorini", "Zucchine", "Spinaci", "Zucca gialla", "Asparagi", "Piselli freschi"],
-                "Carboidrati": ["Pasta di grano Senatore Cappelli", "Pane integrale", "Riso nero Venere", "Farro", "Riso basmati", "Grano saraceno"],
-                "Proteine": ["Ceci secchi", "Petto di pollo", "Lenticchie secche", "Salmone fresco", "Sgombro al naturale", "Pesce spada", "Fesa di tacchino", "Vongole in scatola", "Sogliola", "Triglie", "Orata"],
-                "Latticini e Alternative": ["Yogurt greco", "Burro di centrifuga", "Ricotta di vacca", "Latte di pecora", "Fiocchi di latte", "Latte di capra"],
-                "Cereali": ["Muesli"],
-                "Frutta Secca e Semi": ["Anacardi", "Noci", "Mandorle", "Nocciole", "Semi di girasole", "Semi di zucca", "Arachidi tostate"],
-                "Condimenti e Altro": ["Olio di oliva extra vergine", "Olio di semi di lino", "Marmellata biologica"]
+            settimana3: {
+                "Frutta": [ { name: "Kiwi", qty: 750, unit: "g" }, { name: "Banana", qty: 1050, unit: "g" }, { name: "Mirtilli", qty: 375, unit: "g" } ],
+                "Verdura": [ { name: "Broccoletti", qty: 60, unit: "g" }, { name: "Carote", qty: 100, unit: "g" }, { name: "Peperoni", qty: 150, unit: "g" }, { name: "Fagiolini", qty: 100, unit: "g" }, { name: "Pomodorini", qty: 200, unit: "g" }, { name: "Zucchine", qty: 400, unit: "g" }, { name: "Spinaci", qty: 100, unit: "g" }, { name: "Zucca gialla", qty: 200, unit: "g" }, { name: "Asparagi", qty: 100, unit: "g" }, { name: "Piselli freschi", qty: 240, unit: "g" } ],
+                "Carboidrati": [ { name: "Pasta Senatore Cappelli", qty: 80, unit: "g" }, { name: "Pane secco/integrale", qty: 180, unit: "g" }, { name: "Riso nero Venere", qty: 80, unit: "g" }, { name: "Farro", qty: 160, unit: "g" }, { name: "Riso basmati", qty: 80, unit: "g" }, { name: "Grano saraceno", qty: 80, unit: "g" } ],
+                "Proteine": [ { name: "Ceci secchi", qty: 60, unit: "g" }, { name: "Petto di pollo", qty: 150, unit: "g" }, { name: "Lenticchie secche", qty: 160, unit: "g" }, { name: "Salmone fresco", qty: 150, unit: "g" }, { name: "Sgombro", qty: 60, unit: "g" }, { name: "Pesce spada", qty: 150, unit: "g" }, { name: "Fesa di tacchino", qty: 150, unit: "g" }, { name: "Vongole", qty: 60, unit: "g" }, { name: "Sogliola", qty: 150, unit: "g" }, { name: "Triglie", qty: 150, unit: "g" }, { name: "Orata", qty: 150, unit: "g" } ],
+                "Latticini e Alternative": [ { name: "Yogurt greco", qty: 125, unit: "g" }, { name: "Ricotta di vacca", qty: 160, unit: "g" }, { name: "Latte di pecora", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 85, unit: "g" }, { name: "Latte di capra", qty: 200, unit: "ml" } ],
+                "Cereali e Altro": [ { name: "Muesli", qty: 120, unit: "g" }, { name: "Burro di centrifuga", qty: 1, unit: "conf" }, { name: "Marmellata biologica", qty: 1, unit: "conf" } ],
+                "Frutta Secca e Semi": [ { name: "Anacardi", qty: 30, unit: "g" }, { name: "Noci", qty: 30, unit: "g" }, { name: "Mandorle", qty: 30, unit: "g" }, { name: "Nocciole", qty: 30, unit: "g" }, { name: "Semi di girasole", qty: 20, unit: "g" }, { name: "Arachidi tostate", qty: 30, unit: "g" }, { name: "Semi di zucca", qty: 140, unit: "g" } ]
             },
             settimana4: {
-                "Frutta": ["Banana", "Kiwi", "Noci", "Mirtilli", "Nocciole", "Mandorle"],
-                "Verdura": ["Peperoni", "Broccoletti", "Cipolle", "Fagiolini", "Funghi", "Lattuga", "Agretti", "Zucchine", "Zucca gialla", "Pomodorini"],
-                "Carboidrati": ["Grano saraceno", "Pane integrale", "Riso basmati", "Penne Senatore Cappelli", "Farro", "Pasta Senatore Cappelli"],
-                "Proteine": ["Ceci secchi", "Salmone fresco", "Lenticchie secche", "Fegato di bovino", "Tonno al naturale", "Fesa di tacchino", "Sarde", "Cozze", "Fagioli Borlotti freschi", "Bistecca di maiale"],
-                "Latticini e Alternative": ["Yogurt greco", "Ricotta di pecora", "Latte di vacca scremato", "Fiocchi di latte"],
-                "Cereali": ["Muesli"],
-                "Frutta Secca e Semi": ["Noci", "Nocciole", "Mandorle", "Semi di zucca"],
-                "Condimenti e Altro": ["Olio di oliva extra vergine", "Olio di semi di lino", "Burro di centrifuga", "Marmellata biologica"]
+                "Frutta": [ { name: "Banana", qty: 900, unit: "g" }, { name: "Kiwi", qty: 900, unit: "g" }, { name: "Mirtilli", qty: 625, unit: "g" } ],
+                "Verdura": [ { name: "Peperoni", qty: 300, unit: "g" }, { name: "Broccoletti", qty: 200, unit: "g" }, { name: "Cipolle", qty: 100, unit: "g" }, { name: "Fagiolini", qty: 100, unit: "g" }, { name: "Funghi", qty: 150, unit: "g" }, { name: "Lattuga", qty: 100, unit: "g" }, { name: "Agretti", qty: 100, unit: "g" }, { name: "Zucchine", qty: 200, unit: "g" }, { name: "Zucca gialla", qty: 200, unit: "g" }, { name: "Pomodorini", qty: 200, unit: "g" } ],
+                "Carboidrati": [ { name: "Grano saraceno", qty: 80, unit: "g" }, { name: "Pane secco/integrale", qty: 180, unit: "g" }, { name: "Riso basmati", qty: 160, unit: "g" }, { name: "Penne Senatore Cappelli", qty: 80, unit: "g" }, { name: "Farro", qty: 80, unit: "g" }, { name: "Pasta Senatore Cappelli", qty: 80, unit: "g" } ],
+                "Proteine": [ { name: "Ceci secchi", qty: 140, unit: "g" }, { name: "Salmone fresco", qty: 300, unit: "g" }, { name: "Lenticchie secche", qty: 60, unit: "g" }, { name: "Fegato di bovino", qty: 150, unit: "g" }, { name: "Tonno al naturale", qty: 60, unit: "g" }, { name: "Fesa di tacchino", qty: 150, unit: "g" }, { name: "Sarde", qty: 150, unit: "g" }, { name: "Cozze", qty: 60, unit: "g" }, { name: "Fagioli Borlotti freschi", qty: 120, unit: "g" }, { name: "Bistecca di maiale", qty: 150, unit: "g" }, { name: "Piselli freschi", qty: 60, unit: "g" } ],
+                "Latticini e Alternative": [ { name: "Yogurt greco", qty: 125, unit: "g" }, { name: "Ricotta di pecora", qty: 240, unit: "g" }, { name: "Latte di vacca", qty: 200, unit: "ml" }, { name: "Fiocchi di latte", qty: 85, unit: "g" } ],
+                "Cereali e Altro": [ { name: "Muesli", qty: 90, unit: "g" }, { name: "Burro di centrifuga", qty: 1, unit: "conf" }, { name: "Marmellata biologica", qty: 1, unit: "conf" } ],
+                "Frutta Secca e Semi": [ { name: "Noci", qty: 30, unit: "g" }, { name: "Nocciole", qty: 60, unit: "g" }, { name: "Mandorle", qty: 60, unit: "g" }, { name: "Semi di zucca", qty: 160, unit: "g" } ]
             }
         };
 
@@ -411,9 +414,10 @@
                                 <div class="space-y-3">`;
                 listData[category].forEach((item, index) => {
                     const itemId = `${weekKey}-${category.replace(/\s+/g, '')}-${index}`;
+                    const itemText = `${item.name} <span class="text-gray-500 font-medium">(${item.qty} ${item.unit})</span>`;
                     content += `<div class="shopping-item flex items-center">
                                     <input type="checkbox" id="${itemId}" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
-                                    <label for="${itemId}" class="ml-3 text-gray-700 cursor-pointer">${item}</label>
+                                    <label for="${itemId}" class="ml-3 text-gray-700 cursor-pointer">${itemText}</label>
                                 </div>`;
                 });
                 content += `</div></div>`;
